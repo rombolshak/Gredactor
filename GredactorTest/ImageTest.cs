@@ -116,9 +116,44 @@ namespace GredactorTest
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestCannotSelectWithoutOpen()
         {
-            Assert.Fail();
+            image.SetSelection(0, 0, 1, 1);
+        }
+
+        [TestMethod]
+        public void TestSelection()
+        {
+            image.Open(@"C:\Users\roma\Documents\Visual Studio 2010\Projects\CG_1\Gredactor\bin\Debug\test.bmp");
+            image.SetSelection(0, 0, 1, 2);
+            Assert.IsTrue((image.Selection.Width == 1) && (image.Selection.Height == 2));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void TestSelectionRange()
+        {
+            image.Open(@"C:\Users\roma\Documents\Visual Studio 2010\Projects\CG_1\Gredactor\bin\Debug\test.bmp");
+            image.SetSelection(0, 0, image.Image.Width + 1, image.Image.Height + 1);
+        }
+
+        [TestMethod]
+        public void TestResetSelection()
+        {
+            image.Open(@"C:\Users\roma\Documents\Visual Studio 2010\Projects\CG_1\Gredactor\bin\Debug\test.bmp");
+            image.SetSelection(0, 0, image.Image.Width - 1, image.Image.Height - 1);
+            image.ResetSelection();
+            Assert.IsNull(image.Selection);
+        }
+
+        [TestMethod]
+        public void TestGetSuitableObjectForEffectApplying()
+        {
+            image.Open(@"C:\Users\roma\Documents\Visual Studio 2010\Projects\CG_1\Gredactor\bin\Debug\test.bmp");
+            Assert.IsTrue(image.GetImageForEffect() == image.Image);
+            image.SetSelection(0, 0, 15, 46);
+            Assert.IsTrue(image.GetImageForEffect() == image.Selection);
         }
     }
 }
