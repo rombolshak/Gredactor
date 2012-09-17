@@ -135,7 +135,7 @@ namespace GredactorTest
         public void TestSelectionRange()
         {
             image.Open(@"C:\Users\roma\Documents\Visual Studio 2010\Projects\CG_1\Gredactor\bin\Debug\test.bmp");
-            image.SetSelection(0, 0, image.Image.Width + 1, image.Image.Height + 1);
+            image.SetSelection(-1, 0, image.Image.Width, image.Image.Height + 1);
         }
 
         [TestMethod]

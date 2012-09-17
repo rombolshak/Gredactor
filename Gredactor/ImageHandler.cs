@@ -4,17 +4,46 @@ using System.IO;
 
 namespace Gredactor
 {
+    /// <summary>
+    /// Хранит и обрабатывает изображение, также занимается выделение (зона интереса)
+    /// </summary>
     public class ImageHandler
     {
+        /// <summary>
+        /// В любой момент времени работа идет только с одним изображением. Паттерн "singletone"
+        /// </summary>
         private static ImageHandler instance;
 
+        /// <summary>
+        /// Текущее изображение
+        /// </summary>
         private Bitmap _currentImage;
+
+        /// <summary>
+        /// Зона интереса представлена как отдельное изображение для простоты обработки
+        /// </summary>
         private Bitmap _selection;
+
+        /// <summary>
+        /// Откуда было открыто изображение, чтоб потом туда сохранить
+        /// </summary>
         private string _filename;
+
+        /// <summary>
+        /// Изменяется после каких-либо преобразований над изображением. Само не меняется, ибо не знает ни о каких эффектах. И вообще, это больше для удобства, чем для функциональности
+        /// </summary>
         private bool _changed;
 
+        /// <summary>
+        /// Изображение было изменено
+        /// </summary>
+        /// Вообще сомнительная вещь, ибо форма принудительно вызывает метод изменения, и ей нет смысла подписываться на это событие. Но вдруг появится какой-нибудь немощный плагин, которому это пригодится
         public event EventHandler Changed;
 
+        /// <summary>
+        /// Возвращает рабочий экземпляр
+        /// </summary>
+        /// <returns></returns>
         public static ImageHandler GetInstanse()
         {
             if (instance == null)
@@ -28,6 +57,10 @@ namespace Gredactor
         {
         }
 
+        /// <summary>
+        /// Сбрасывает все в дефолт
+        /// </summary>
+        /// Вообще писалось для тестов, ну да мне не жалко оставить
         public void Reset()
         {
             if (_currentImage != null)
@@ -39,16 +72,22 @@ namespace Gredactor
             _filename = null;
         }
 
+        /// <summary>
+        /// Изображение, с которым происходит работа
+        /// </summary>
         public Bitmap Image
         {
             get { return _currentImage; }
             set { _currentImage = value; }
         }
 
+        /// <summary>
+        /// Индикатор того, что изображение было изменено
+        /// </summary>
         public bool WasChanged
         {
             get { return _changed; }
-            private set
+            set
             {
                 _changed = value;
                 if (_changed)
@@ -61,6 +100,9 @@ namespace Gredactor
         }
 
         #region Selection
+        /// <summary>
+        /// Текущее выделение либо null
+        /// </summary>
         public Bitmap Selection
         {
             get
@@ -69,10 +111,21 @@ namespace Gredactor
             }
         }
 
+        /// <summary>
+        /// Установить выделение
+        /// </summary>
+        /// <param name="x">Начальная координата по горизонтали</param>
+        /// <param name="y">Начальная координата по вертикали</param>
+        /// <param name="width">Ширина</param>
+        /// <param name="height">Высота</param>
         public void SetSelection(int x, int y, int width, int height)
         {
             SetSelection(new Rectangle(x, y, width, height));
         }
+        /// <summary>
+        /// Установить выделение
+        /// </summary>
+        /// <param name="rect">Прямоугольник выделения</param>
         public void SetSelection(Rectangle rect)
         {
             if (_currentImage == null) throw new InvalidOperationException();
@@ -86,6 +139,9 @@ namespace Gredactor
             }
         }
 
+        /// <summary>
+        /// Сбросить выделение
+        /// </summary>
         public void ResetSelection()
         {
             if (_selection != null)
@@ -94,6 +150,10 @@ namespace Gredactor
         }
         #endregion
 
+        /// <summary>
+        /// Открыть файл
+        /// </summary>
+        /// <param name="filename"></param>
         public void Open(string filename)
         {
             if (!File.Exists(filename)) throw new FileNotFoundException("Файл не найден");
@@ -101,6 +161,9 @@ namespace Gredactor
             _filename = filename;
         }
 
+        /// <summary>
+        /// Сохранить изображение в тот же файл, из которого оно было открыто
+        /// </summary>
         public void Save()
         {
             if (_filename == null) throw new InvalidOperationException();
@@ -108,6 +171,10 @@ namespace Gredactor
             this.WasChanged = false;
         }
 
+        /// <summary>
+        /// Сохранить изображение в файл, отличный от исходного и переключиться на него
+        /// </summary>
+        /// <param name="filename"></param>
         public void SaveAs(string filename)
         {
             if (_filename == null) throw new InvalidOperationException();
@@ -115,6 +182,10 @@ namespace Gredactor
             this.WasChanged = false;
         }
 
+        /// <summary>
+        /// Выбрать нужную область, которую отдать в эффект
+        /// </summary>
+        /// <returns>Все изображение, либо выделенную область</returns>
         public Bitmap GetImageForEffect()
         {
             return (_selection == null) ? _currentImage : _selection;
