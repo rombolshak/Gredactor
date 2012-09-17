@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gredactor", "Gredactor\Gredactor.csproj", "{487B127C-C578-4953-8470-83DAA300ADA8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GredactorTest", "GredactorTest\GredactorTest.csproj", "{218B8DC0-44B1-4ABF-9261-CFEA5A71AE56}"
+	ProjectSection(ProjectDependencies) = postProject
+		{487B127C-C578-4953-8470-83DAA300ADA8} = {487B127C-C578-4953-8470-83DAA300ADA8}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C3786AC0-0D39-43A2-BA89-A38388528C5C}"
 	ProjectSection(SolutionItems) = preProject

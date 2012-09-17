@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace CG_1
+namespace Gredactor
 {
     public partial class MainForm : Form
     {

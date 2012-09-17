@@ -1,4 +1,4 @@
-﻿namespace CG_1
+﻿namespace Gredactor
 {
     partial class MainForm
     {

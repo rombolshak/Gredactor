@@ -1,21 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 
-namespace CG_1
+namespace Gredactor
 {
     static class Gredactor
     {
+        public static System.Collections.Generic.List<IEffect> plugins;
         /// <summary>
         /// The main entry point for the application.
         /// </summary>                             
         [STAThread]
         static void Main()
         {
+            FindPlugins();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
+        }
+
+        static void FindPlugins()
+        {
+            plugins = new System.Collections.Generic.List<IEffect>();
+            foreach (string f in Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "*.dll"))
+            {
+                Assembly a = Assembly.LoadFrom(f);
+                foreach (Type t in a.GetTypes())
+                {
+                    foreach (Type i in t.GetInterfaces())
+                    {
+                        if (i.Equals(Type.GetType("Gredactor.IEffect")))
+                        {
+                            IEffect e = (IEffect)Activator.CreateInstance(t);
+                            plugins.Add(e);
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 }
