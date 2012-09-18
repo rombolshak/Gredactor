@@ -16,8 +16,15 @@ namespace Gredactor
         public MainForm()
         {
             imHandler = ImageHandler.GetInstanse();
+            imHandler.Changed += new EventHandler(imHandler_Changed);
             InitializeComponent();
             LoadPlugins();
+        }
+
+        void imHandler_Changed(object sender, EventArgs e)
+        {
+            pictureBox.Image = imHandler.Image;
+            undoToolStripMenuItem.Enabled = imHandler.CanUndo;
         }
 
         private void LoadPlugins()
@@ -27,13 +34,15 @@ namespace Gredactor
             {
                 foreach (Button btn in effect.Buttons)
                 {
-                    btn.Height = btn.Width = 25;
+                    btn.Height = 25;
+                    btn.Width = 87;
                     btn.Location = new Point(x, y);
                     btn.Tag = effect;
                     btn.Click += new EventHandler(effectButtonClick);
                     toolBox.Controls.Add(btn);
-                    if (x == 68) {x = 6; y += 31;}
-                    else x += 31;
+                    //if (x == 68) {x = 6; y += 31;}
+                    //else x += 31;
+                    y += 31;
                 }
                 if (!menuStrip1.Items.ContainsKey(effect.MenuGroup))
                 {

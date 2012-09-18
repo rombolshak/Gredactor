@@ -205,7 +205,10 @@ namespace Gredactor
         public void Undo()
         {
             if (CanUndo)
+            {
                 _currentImage = (Bitmap)_undoStack.Pop();
+                this.WasChanged = true;
+            }
         }
 
         public bool CanUndo
