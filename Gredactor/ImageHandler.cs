@@ -29,15 +29,13 @@ namespace Gredactor
         /// </summary>
         private string _filename;
 
-        /// <summary>
-        /// Изменяется после каких-либо преобразований над изображением. Само не меняется, ибо не знает ни о каких эффектах. И вообще, это больше для удобства, чем для функциональности
-        /// </summary>
+        private System.Collections.Stack _undoStack;
+
         private bool _changed;
 
         /// <summary>
         /// Изображение было изменено
         /// </summary>
-        /// Вообще сомнительная вещь, ибо форма принудительно вызывает метод изменения, и ей нет смысла подписываться на это событие. Но вдруг появится какой-нибудь немощный плагин, которому это пригодится
         public event EventHandler Changed;
 
         /// <summary>
@@ -55,6 +53,8 @@ namespace Gredactor
 
         private ImageHandler()
         {
+            _undoStack = new System.Collections.Stack();
+            _changed = false;
         }
 
         /// <summary>
@@ -70,6 +70,8 @@ namespace Gredactor
             _currentImage = null;
             _selection = null;
             _filename = null;
+            _undoStack.Clear();
+            _changed = false;
         }
 
         /// <summary>
@@ -87,7 +89,7 @@ namespace Gredactor
         public bool WasChanged
         {
             get { return _changed; }
-            set
+            private set
             {
                 _changed = value;
                 if (_changed)
@@ -159,6 +161,8 @@ namespace Gredactor
             if (!File.Exists(filename)) throw new FileNotFoundException("Файл не найден");
             _currentImage = new Bitmap(filename);
             _filename = filename;
+            _undoStack.Clear();
+            _changed = false;
         }
 
         /// <summary>
@@ -189,6 +193,27 @@ namespace Gredactor
         public Bitmap GetImageForEffect()
         {
             return (_selection == null) ? _currentImage : _selection;
+        }
+
+        public void ApplyEffect(IEffect e)
+        {
+            _undoStack.Push(_currentImage);
+            _currentImage = e.Apply(GetImageForEffect());
+            this.WasChanged = true;
+        }
+
+        public void Undo()
+        {
+            if (CanUndo)
+                _currentImage = (Bitmap)_undoStack.Pop();
+        }
+
+        public bool CanUndo
+        {
+            get 
+            {
+                return _undoStack.Count > 0;
+            }
         }
     }
 }
