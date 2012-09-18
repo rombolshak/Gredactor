@@ -80,7 +80,7 @@ namespace Gredactor
         public Bitmap Image
         {
             get { return _currentImage; }
-            set { _currentImage = value; }
+            private set { _currentImage = value; }
         }
 
         /// <summary>
@@ -197,9 +197,12 @@ namespace Gredactor
 
         public void ApplyEffect(IEffect e)
         {
-            _undoStack.Push(_currentImage);
-            _currentImage = e.Apply(GetImageForEffect());
-            this.WasChanged = true;
+            if (_currentImage != null)
+            {
+                _undoStack.Push(_currentImage.Clone());
+                _currentImage = e.Apply(GetImageForEffect());
+                this.WasChanged = true;
+            }
         }
 
         public void Undo()

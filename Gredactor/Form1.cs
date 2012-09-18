@@ -25,6 +25,8 @@ namespace Gredactor
         {
             pictureBox.Image = imHandler.Image;
             undoToolStripMenuItem.Enabled = imHandler.CanUndo;
+            if (imHandler.CanUndo) SetChanged();
+            else SetNotChanged();
         }
 
         private void LoadPlugins()
@@ -44,18 +46,39 @@ namespace Gredactor
                     //else x += 31;
                     y += 31;
                 }
-                if (!menuStrip1.Items.ContainsKey(effect.MenuGroup))
+                if (effect.MenuItem != null)
                 {
-                    ToolStripMenuItem newMenuGroup = new ToolStripMenuItem(effect.MenuGroup);
-                    newMenuGroup.DropDownItems.Add(effect.MenuItem);
+                    ToolStripMenuItem item = effect.MenuItem;
+                    item.Tag = effect;
+                    item.Click += new EventHandler(MenuItem_Click);
+                    if ((effect.MenuGroup != "") && (effect.MenuGroup != null))
+                        if (!menuStrip1.Items.ContainsKey(effect.MenuGroup))
+                        {
+                            ToolStripMenuItem newMenuGroup = new ToolStripMenuItem(effect.MenuGroup);
+                            newMenuGroup.DropDownItems.Add(item);
+                            menuStrip1.Items.Add(newMenuGroup);
+                        }
+                        else ((ToolStripMenuItem)menuStrip1.Items.Find(effect.MenuGroup, false)[0]).DropDownItems.Add(item);
                 }
-                else ((ToolStripMenuItem)menuStrip1.Items.Find(effect.MenuGroup, false)[0]).DropDownItems.Add(effect.MenuItem);
             }
+        }
+
+        void MenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                imHandler.ApplyEffect((IEffect)((ToolStripMenuItem)sender).Tag);
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
         void effectButtonClick(object sender, EventArgs e)
         {
-            imHandler.ApplyEffect((IEffect)((Button)sender).Tag);
+            try
+            {
+                imHandler.ApplyEffect((IEffect)((Button)sender).Tag);
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
         private void SetChanged()
@@ -68,7 +91,7 @@ namespace Gredactor
         private void SetNotChanged()
         {
             if (this.Text[this.Text.Length - 1] == '*')
-                this.Text.Remove(this.Text.Length - 1);
+                this.Text = this.Text.Remove(this.Text.Length - 1);
             saveToolStripMenuItem.Enabled = false;
         }
 
