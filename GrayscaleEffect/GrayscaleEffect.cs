@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Drawing;
 
 namespace GrayscaleEffect
 {
@@ -17,10 +18,30 @@ namespace GrayscaleEffect
             get { return "Оттенки серого"; }
         }
 
-        public System.Drawing.Bitmap Apply(System.Drawing.Bitmap original)
+        public Bitmap Apply(Bitmap original)
         {
-            original.RotateFlip(System.Drawing.RotateFlipType.Rotate180FlipX);
-            return original;
+            Bitmap newBitmap = (Bitmap)original.Clone();
+
+            for (int x = 0; x < original.Width; x++)
+            {
+                for (int y = 0; y < original.Height; y++)
+                {
+                    //get the pixel from the original image
+                    Color originalColor = original.GetPixel(x, y);
+
+                    //create the grayscale version of the pixel
+                    int grayScale = (int)((originalColor.R * .3) + (originalColor.G * .59)
+                        + (originalColor.B * .11));
+
+                    //create the color object
+                    Color newColor = Color.FromArgb(grayScale, grayScale, grayScale);
+
+                    //set the new image's pixel to the grayscale version
+                    newBitmap.SetPixel(x, y, newColor);
+                }
+            }
+
+            return newBitmap;
         }
 
         public string MenuGroup

@@ -76,7 +76,9 @@ namespace Gredactor
         {
             try
             {
+                this.Cursor = Cursors.WaitCursor;
                 imHandler.ApplyEffect((IEffect)((Button)sender).Tag);
+                this.Cursor = Cursors.Default;
             }
             catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
