@@ -23,6 +23,7 @@ namespace Gredactor
         /// Зона интереса представлена как отдельное изображение для простоты обработки
         /// </summary>
         private Bitmap _selection;
+        private Point _selectionStartPoint;
 
         /// <summary>
         /// Откуда было открыто изображение, чтоб потом туда сохранить
@@ -131,8 +132,17 @@ namespace Gredactor
         public void SetSelection(Rectangle rect)
         {
             if (_currentImage == null) throw new InvalidOperationException();
+            if ((rect.Height == 0) || (rect.Width == 0)) return;
+            if ((rect.X >= _currentImage.Width) || (rect.Y >= _currentImage.Height)) return;
+            //if ((rect.X < 0) || (rect.X > _currentImage.Width) || (rect.Y < 0) || (rect.Y > _currentImage.Height)) return;
+            if (rect.X < 0) rect.X = 0;
+            if (rect.X + rect.Width >= _currentImage.Width) rect.Width = _currentImage.Width - 1 - rect.X;
+            if (rect.Y < 0) rect.Y = 0;
+            if (rect.Y + rect.Height >= _currentImage.Height) rect.Height = _currentImage.Height - 1 - rect.Y;
+
             try
             {
+                _selectionStartPoint = new Point(rect.X, rect.Y);
                 _selection = _currentImage.Clone(rect, _currentImage.PixelFormat);
             }
             catch (OutOfMemoryException)
@@ -163,6 +173,8 @@ namespace Gredactor
             _filename = filename;
             _undoStack.Clear();
             _changed = false;
+            if (_selection != null) _selection.Dispose();
+            _selection = null;
         }
 
         /// <summary>
@@ -200,9 +212,23 @@ namespace Gredactor
             if (_currentImage != null)
             {
                 _undoStack.Push(_currentImage.Clone());
-                _currentImage = e.Apply(GetImageForEffect());
+                Bitmap result = e.Apply(GetImageForEffect());
+                if (_selection == null) _currentImage = result;
+                else { _selection = result; Substitute(); }
                 this.WasChanged = true;
             }
+        }
+
+        private void Substitute()
+        {
+            if ((_selection != null) && (_currentImage != null))
+            for (int x = 0; x < _selection.Width; ++x)
+                for (int y = 0; y < _selection.Height; ++y)
+                    _currentImage.SetPixel(
+                        x + _selectionStartPoint.X, 
+                        y + _selectionStartPoint.Y,
+                        _selection.GetPixel(x, y)
+                    );
         }
 
         public void Undo()
