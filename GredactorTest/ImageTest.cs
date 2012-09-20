@@ -130,13 +130,14 @@ namespace GredactorTest
             Assert.IsTrue((image.Selection.Width == 1) && (image.Selection.Height == 2));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestSelectionRange()
-        {
-            image.Open(@"C:\Users\roma\Documents\Visual Studio 2010\Projects\CG_1\Gredactor\bin\Debug\test.bmp");
-            image.SetSelection(-1, 0, image.Image.Width, image.Image.Height + 1);
-        }
+        // [deprecated] Теперь есть кошерное исправление границ и начального положения
+        //[TestMethod]
+        //[ExpectedException(typeof(ArgumentOutOfRangeException))]
+        //public void TestSelectionRange()
+        //{
+        //    image.Open(@"C:\Users\roma\Documents\Visual Studio 2010\Projects\CG_1\Gredactor\bin\Debug\test.bmp");
+        //    image.SetSelection(-1, 0, image.Image.Width, image.Image.Height + 1);
+        //}
 
         [TestMethod]
         public void TestResetSelection()
@@ -154,6 +155,20 @@ namespace GredactorTest
             Assert.IsTrue(image.GetImageForEffect() == image.Image);
             image.SetSelection(0, 0, 15, 46);
             Assert.IsTrue(image.GetImageForEffect() == image.Selection);
+        }
+
+        [TestMethod]
+        public void TestNormalizeStartPoint()
+        {
+            Rectangle expectedResult = new Rectangle(1, 1, 4, 2);
+            Rectangle test = new Rectangle(1, 1, 4, 2);
+            Assert.AreEqual<Rectangle>(expectedResult, image.NormalizeStartPoint(test));
+            test = new Rectangle(5, 1, -4, 2);
+            Assert.AreEqual<Rectangle>(expectedResult, image.NormalizeStartPoint(test));
+            test = new Rectangle(1, 3, 4, -2);
+            Assert.AreEqual<Rectangle>(expectedResult, image.NormalizeStartPoint(test));
+            test = new Rectangle(5, 3, -4, -2);
+            Assert.AreEqual<Rectangle>(expectedResult, image.NormalizeStartPoint(test));
         }
     }
 }

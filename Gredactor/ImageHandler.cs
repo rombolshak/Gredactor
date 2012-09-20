@@ -131,15 +131,10 @@ namespace Gredactor
         /// <param name="rect">Прямоугольник выделения</param>
         public void SetSelection(Rectangle rect)
         {
-            if (_currentImage == null) throw new InvalidOperationException();
-            if ((rect.Height == 0) || (rect.Width == 0)) return;
-            if ((rect.X >= _currentImage.Width) || (rect.Y >= _currentImage.Height)) return;
-            //if ((rect.X < 0) || (rect.X > _currentImage.Width) || (rect.Y < 0) || (rect.Y > _currentImage.Height)) return;
-            if (rect.X < 0) rect.X = 0;
-            if (rect.X + rect.Width >= _currentImage.Width) rect.Width = _currentImage.Width - 1 - rect.X;
-            if (rect.Y < 0) rect.Y = 0;
-            if (rect.Y + rect.Height >= _currentImage.Height) rect.Height = _currentImage.Height - 1 - rect.Y;
-
+            if (!CanSelect(rect)) return;
+            rect = NormalizeStartPoint(rect);
+            rect = NormalizeBounds(rect);
+            
             try
             {
                 _selectionStartPoint = new Point(rect.X, rect.Y);
@@ -149,6 +144,36 @@ namespace Gredactor
             {
                 throw new ArgumentOutOfRangeException("Выделение находится за границами изображения");
             }
+        }
+
+        public Rectangle NormalizeStartPoint(Rectangle rect)
+        {
+            if (rect.Width < 0)
+                if (rect.Height < 0)
+                    rect = new Rectangle(rect.X + rect.Width, rect.Y + rect.Height, -rect.Width, -rect.Height);
+                else
+                    rect = new Rectangle(rect.X + rect.Width, rect.Y, -rect.Width, rect.Height);
+            else
+                if (rect.Height < 0)
+                    rect = new Rectangle(rect.X, rect.Y + rect.Height, rect.Width, -rect.Height);
+            return rect;
+        }
+
+        private Rectangle NormalizeBounds(Rectangle rect)
+        {
+            if (rect.X < 0) rect.X = 0;
+            if (rect.X + rect.Width >= _currentImage.Width) rect.Width = _currentImage.Width - 1 - rect.X;
+            if (rect.Y < 0) rect.Y = 0;
+            if (rect.Y + rect.Height >= _currentImage.Height) rect.Height = _currentImage.Height - 1 - rect.Y;
+            return rect;
+        }
+
+        private bool CanSelect(Rectangle rect)
+        {
+            if (_currentImage == null) throw new InvalidOperationException();
+            if ((rect.Height == 0) || (rect.Width == 0)) return false;
+            if ((rect.X >= _currentImage.Width) || (rect.Y >= _currentImage.Height)) return false;
+            return true;
         }
 
         /// <summary>
