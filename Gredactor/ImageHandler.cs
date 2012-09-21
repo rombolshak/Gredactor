@@ -92,6 +92,7 @@ namespace Gredactor
             get { return _changed; }
             private set
             {
+                Logger.Log("Changed event");
                 _changed = value;
                 if (_changed)
                 {
@@ -131,6 +132,7 @@ namespace Gredactor
         /// <param name="rect">Прямоугольник выделения</param>
         public void SetSelection(Rectangle rect)
         {
+            Logger.Log("Set selection");
             if (!CanSelect(rect)) return;
             rect = NormalizeStartPoint(rect);
             rect = NormalizeBounds(rect);
@@ -193,6 +195,7 @@ namespace Gredactor
         /// <param name="filename"></param>
         public void Open(string filename)
         {
+            Logger.Log("Opening file " + filename);
             if (!File.Exists(filename)) throw new FileNotFoundException("Файл не найден");
             _currentImage = new Bitmap(filename);
             _filename = filename;
@@ -207,6 +210,7 @@ namespace Gredactor
         /// </summary>
         public void Save()
         {
+            Logger.Log("Saving file");
             if (_filename == null) throw new InvalidOperationException();
             _currentImage.Save(_filename);
             this.WasChanged = false;
@@ -218,6 +222,7 @@ namespace Gredactor
         /// <param name="filename"></param>
         public void SaveAs(string filename)
         {
+            Logger.Log("Saving as " + filename);
             if (_filename == null) throw new InvalidOperationException();
             _currentImage.Save(_filename = filename);
             this.WasChanged = false;
@@ -234,12 +239,17 @@ namespace Gredactor
 
         public void ApplyEffect(IEffect e)
         {
+            Logger.Log("Applying effect " + e.Name);
             if (_currentImage != null)
             {
+                Logger.Log("Push image to undo stack");
                 _undoStack.Push(_currentImage.Clone());
+                Logger.Log("Getting result");
                 Bitmap result = e.Apply(GetImageForEffect());
+                Logger.Log("Substitute result");
                 if (_selection == null) _currentImage = result;
                 else { _selection = result; Substitute(); }
+                Logger.Log("Setting \"WasChanged\"");
                 this.WasChanged = true;
             }
         }
@@ -258,9 +268,13 @@ namespace Gredactor
 
         public void Undo()
         {
+            Logger.Log("Doing undo");
             if (CanUndo)
             {
+                Logger.Log("Retrieve from stack");
                 _currentImage = (Bitmap)_undoStack.Pop();
+                SetSelection(new Rectangle(_selectionStartPoint, new Size(_selection.Width, _selection.Height)));
+                Logger.Log("Setting \"WasChanged\"");
                 this.WasChanged = true;
             }
         }
