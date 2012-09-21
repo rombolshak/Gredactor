@@ -5,6 +5,31 @@ using System.Windows.Forms;
 
 namespace Gredactor
 {
+    public class Logger
+    {
+        public static void Log(string line)
+        {
+            try
+            {
+                string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                FileStream fs1 = new FileStream(path + "log.txt", FileMode.Append);
+                long lenght = fs1.Length;
+                fs1.Dispose();
+                if (lenght >= 10 * 1024 * 1024)
+                {
+                    File.Move(path + "log.txt", path + "log_" + DateTime.Now.ToShortDateString() + "." + DateTime.Now.Hour + "." + DateTime.Now.Minute + "." + DateTime.Now.Second + @".old");
+                }
+                FileStream fs2 = new FileStream(path + "log.txt", FileMode.Append);
+                StreamWriter sw = new StreamWriter(fs2);
+                sw.WriteLine("[" + DateTime.Now.ToString() + "]: " + line);
+                sw.Close();
+                fs2.Dispose();
+            }
+            catch
+            {
+            }
+        }
+    }
     static class Gredactor
     {
         public static System.Collections.Generic.List<IEffect> plugins;
@@ -16,6 +41,11 @@ namespace Gredactor
         {
             try
             {
+                Logger.Log("Starting");
+                Logger.Log("Version: " + Environment.Version.ToString());
+                Logger.Log("OS: " + Environment.OSVersion.ToString());
+                Logger.Log("Command: " + Environment.CommandLine.ToString());
+
                 FindPlugins();
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
@@ -41,6 +71,7 @@ namespace Gredactor
                         {
                             IEffect e = (IEffect)Activator.CreateInstance(t);
                             plugins.Add(e);
+                            Logger.Log("Found plugin \"" + e.Name + "\"");
                             break;
                         }
                     }

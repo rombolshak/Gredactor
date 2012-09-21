@@ -23,6 +23,7 @@ namespace Gredactor
 
         void imHandler_Changed(object sender, EventArgs e)
         {
+            Logger.Log("Image changed");
             pictureBox.Image = imHandler.Image;
             undoToolStripMenuItem.Enabled = imHandler.CanUndo;
             if (imHandler.CanUndo) SetChanged();
@@ -92,8 +93,19 @@ namespace Gredactor
                     ((ToolStripItem)sender).Tag = tuple.Item2;
                 }
 
+                Logger.Log("Start apply effect " + effect.Name);
                 if (effect.Prepare(sender))
                     imHandler.ApplyEffect(effect);
+                Logger.Log("End apply effect " + effect.Name);
+
+                try
+                {
+                    ((Control)sender).Tag = Tuple.Create<IEffect, object>(effect, ((Control)sender).Tag);
+                }
+                catch (InvalidCastException)
+                {
+                    ((ToolStripItem)sender).Tag = Tuple.Create<IEffect, object>(effect, ((ToolStripItem)sender).Tag);
+                }
 
                 this.Cursor = Cursors.Default;
             }
@@ -143,10 +155,12 @@ namespace Gredactor
             pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             saveAsToolStripMenuItem.Enabled = true;
             this.Text = "Gredactor [" + Path.GetFileName(file) + "] ";
+            Logger.Log("File " + file + " opened");
         }
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Logger.Log("Undo button");
             imHandler.Undo();
             undoToolStripMenuItem.Enabled = imHandler.CanUndo;
         }
@@ -159,11 +173,13 @@ namespace Gredactor
                 imHandler.SaveAs(svd.FileName);
                 saveToolStripMenuItem.Enabled = false;
                 this.Text = "Gredactor [" + Path.GetFileName(svd.FileName) + "] ";
+                Logger.Log("File saved as " + svd.FileName);
             }
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Logger.Log("Save button");
             imHandler.Save();
             SetNotChanged();
         }
@@ -191,9 +207,7 @@ namespace Gredactor
             System.Windows.Forms.MouseEventArgs e)
         {
             if (imHandler.Image == null) return;
-            // Set the isDrag variable to true and get the starting point 
-            // by using the PointToScreen method to convert form 
-            // coordinates to screen coordinates.
+
             if (e.Button == MouseButtons.Left)
             {
                 isDrag = true;
@@ -201,8 +215,6 @@ namespace Gredactor
 
             Control control = (Control)sender;
 
-            // Calculate the startPoint by using the PointToScreen 
-            // method.
             _guiStart = control.PointToScreen(new Point(e.X, e.Y));
             _selectionStart = e.Location;
             ControlPaint.DrawReversibleFrame(_guiRect,
@@ -252,28 +264,6 @@ namespace Gredactor
             isDrag = false;
 
             imHandler.SetSelection(_selectionRect);
-            //// Draw the rectangle to be evaluated. Set a dashed frame style 
-            //// using the FrameStyle enumeration.
-            //ControlPaint.DrawReversibleFrame(theRectangle,
-            //    Color.Black, FrameStyle.Dashed);
-
-            //// Find out which controls intersect the rectangle and 
-            //// change their color. The method uses the RectangleToScreen  
-            //// method to convert the Control's client coordinates 
-            //// to screen coordinates.
-            //Rectangle controlRectangle;
-            //for (int i = 0; i < Controls.Count; i++)
-            //{
-            //    controlRectangle = Controls[i].RectangleToScreen
-            //        (Controls[i].ClientRectangle);
-            //    if (controlRectangle.IntersectsWith(theRectangle))
-            //    {
-            //        Controls[i].BackColor = Color.White;//Color.BurlyWood;
-            //    }
-            //}
-
-            //// Reset the rectangle.
-            //_guiRect = new Rectangle(0, 0, 0, 0);
         }
 
         #endregion
