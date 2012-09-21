@@ -12,6 +12,7 @@ namespace Gredactor
         string Name { get; }
         string Description { get; }
 
+        bool Prepare(object obj);
         Bitmap Apply(Bitmap original);
 
         string MenuGroup { get; }

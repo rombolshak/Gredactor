@@ -18,6 +18,10 @@ namespace GrayscaleEffect
             get { return "Оттенки серого"; }
         }
 
+        public bool Prepare(object obj)
+        {
+            return true;
+        }
         public Bitmap Apply(Bitmap original)
         {
             Bitmap newBitmap = (Bitmap)original.Clone();

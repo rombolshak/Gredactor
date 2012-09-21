@@ -39,7 +39,7 @@ namespace Gredactor
                     btn.Height = 25;
                     btn.Width = 87;
                     btn.Location = new Point(x, y);
-                    btn.Tag = effect;
+                    btn.Tag = Tuple.Create<IEffect, object>(effect, btn.Tag);
                     btn.Click += new EventHandler(effectButtonClick);
                     toolBox.Controls.Add(btn);
                     //if (x == 68) {x = 6; y += 31;}
@@ -49,7 +49,7 @@ namespace Gredactor
                 if (effect.MenuItem != null)
                 {
                     ToolStripMenuItem item = effect.MenuItem;
-                    item.Tag = effect;
+                    item.Tag = Tuple.Create<IEffect, object>(effect, item.Tag);
                     item.Click += new EventHandler(MenuItem_Click);
                     if ((effect.MenuGroup != "") && (effect.MenuGroup != null))
                         if (!menuStrip1.Items.ContainsKey(effect.MenuGroup))
@@ -65,22 +65,39 @@ namespace Gredactor
 
         void MenuItem_Click(object sender, EventArgs e)
         {
-            try
-            {
-                imHandler.ApplyEffect((IEffect)((ToolStripMenuItem)sender).Tag);
-            }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            ApplyEffect(sender);
         }
 
         void effectButtonClick(object sender, EventArgs e)
         {
+            ApplyEffect(sender);
+        }
+
+        private void ApplyEffect(object sender)
+        {
             try
             {
                 this.Cursor = Cursors.WaitCursor;
-                imHandler.ApplyEffect((IEffect)((Button)sender).Tag);
+                IEffect effect;
+                try
+                {
+                    Tuple<IEffect, object> tuple = (Tuple<IEffect, object>)(((Control)sender).Tag);
+                    effect = tuple.Item1;
+                    ((Control)sender).Tag = tuple.Item2;
+                }
+                catch (InvalidCastException)
+                {
+                    Tuple<IEffect, object> tuple = (Tuple<IEffect, object>)(((ToolStripItem)sender).Tag);
+                    effect = tuple.Item1;
+                    ((ToolStripItem)sender).Tag = tuple.Item2;
+                }
+
+                if (effect.Prepare(sender))
+                    imHandler.ApplyEffect(effect);
+
                 this.Cursor = Cursors.Default;
             }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }            
         }
 
         private void SetChanged()
