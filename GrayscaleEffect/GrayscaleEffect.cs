@@ -69,14 +69,14 @@ namespace GrayscaleEffect
             get { return "Фильтры"; }
         }
 
-        public System.Windows.Forms.ToolStripMenuItem MenuItem
+        public System.Windows.Forms.ToolStripMenuItem[] MenuItems
         {
             get 
             {
                 System.Windows.Forms.ToolStripMenuItem item = new System.Windows.Forms.ToolStripMenuItem();
                 item.Text = "Grayscale";
                 item.Name = "grayscaleMenuItem";
-                return item;
+                return new System.Windows.Forms.ToolStripMenuItem[] { item };
             }
         }
 
@@ -92,12 +92,12 @@ namespace GrayscaleEffect
             }
         }
 
-        public string ShortConsoleKey
+        public char[] ShortConsoleKey
         {
             get { throw new NotImplementedException(); }
         }
 
-        public string LongConsoleKey
+        public string[] LongConsoleKey
         {
             get { throw new NotImplementedException(); }
         }

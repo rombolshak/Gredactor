@@ -84,7 +84,7 @@ namespace GredactorTest
         public void MenuTest()
         {
             Assert.IsNotNull(effect.MenuGroup);
-            Assert.IsNotNull(effect.MenuItem);
+            Assert.IsNotNull(effect.MenuItems);
         }
 
         [TestMethod()]

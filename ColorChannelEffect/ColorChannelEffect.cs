@@ -35,6 +35,7 @@ namespace ColorChannelEffect
         }
         public Bitmap Apply(Bitmap original)
         {
+            if (color == Colors.None) return original;
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, original.PixelFormat);
             IntPtr ptr = bmpData.Scan0;
@@ -71,7 +72,7 @@ namespace ColorChannelEffect
             get { return ""; }
         }
 
-        public System.Windows.Forms.ToolStripMenuItem MenuItem
+        public System.Windows.Forms.ToolStripMenuItem[] MenuItems
         {
             get { return null; }
         }
@@ -101,12 +102,12 @@ namespace ColorChannelEffect
             }
         }
 
-        public string ShortConsoleKey
+        public char[] ShortConsoleKey
         {
             get { throw new NotImplementedException(); }
         }
 
-        public string LongConsoleKey
+        public string[] LongConsoleKey
         {
             get { throw new NotImplementedException(); }
         }

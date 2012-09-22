@@ -47,20 +47,23 @@ namespace Gredactor
                     //else x += 31;
                     y += 31;
                 }
-                if (effect.MenuItem != null)
+                if (effect.MenuItems != null)
                 {
-                    ToolStripMenuItem item = effect.MenuItem;
-                    item.Tag = Tuple.Create<IEffect, object>(effect, item.Tag);
-                    item.Click += new EventHandler(MenuItem_Click);
-                    if ((effect.MenuGroup != "") && (effect.MenuGroup != null))
-                        if (!menuStrip1.Items.ContainsKey(effect.MenuGroup))
-                        {
-                            ToolStripMenuItem newMenuGroup = new ToolStripMenuItem(effect.MenuGroup);
-                            newMenuGroup.Name = effect.MenuGroup;
-                            newMenuGroup.DropDownItems.Add(item);
-                            menuStrip1.Items.Add(newMenuGroup);
-                        }
-                        else ((ToolStripMenuItem)menuStrip1.Items.Find(effect.MenuGroup, false)[0]).DropDownItems.Add(item);
+                    ToolStripMenuItem[] items = effect.MenuItems;
+                    foreach (ToolStripMenuItem item in items)
+                    {
+                        item.Tag = Tuple.Create<IEffect, object>(effect, item.Tag);
+                        item.Click += new EventHandler(MenuItem_Click);
+                        if ((effect.MenuGroup != "") && (effect.MenuGroup != null))
+                            if (!menuStrip1.Items.ContainsKey(effect.MenuGroup))
+                            {
+                                ToolStripMenuItem newMenuGroup = new ToolStripMenuItem(effect.MenuGroup);
+                                newMenuGroup.Name = effect.MenuGroup;
+                                newMenuGroup.DropDownItems.Add(item);
+                                menuStrip1.Items.Add(newMenuGroup);
+                            }
+                            else ((ToolStripMenuItem)menuStrip1.Items.Find(effect.MenuGroup, false)[0]).DropDownItems.Add(item);
+                    }
                 }
             }
         }

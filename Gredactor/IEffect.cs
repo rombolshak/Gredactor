@@ -16,9 +16,9 @@ namespace Gredactor
         Bitmap Apply(Bitmap original);
 
         string MenuGroup { get; }
-        ToolStripMenuItem MenuItem { get; }
+        ToolStripMenuItem[] MenuItems { get; }
         Button[] Buttons { get; }
-        string ShortConsoleKey { get; }
-        string LongConsoleKey { get; }
+        char[] ShortConsoleKey { get; }
+        string[] LongConsoleKey { get; }
     }
 }
