@@ -6,9 +6,9 @@ using Gredactor;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace AutolevelsEffect
+namespace ContrastEffect
 {
-    public class AutolevelsEffect : IEffect
+    public class ContrastEffect : IEffect
     {
         enum Operation { None, Autocontrast, Autolevels };
         Operation operation = Operation.None;
@@ -40,8 +40,6 @@ namespace AutolevelsEffect
             }
         }
 
-
-        static bool normalization = true;
         public Bitmap Apply(Bitmap original)
         {
             if (operation == Operation.None) return original;
@@ -54,6 +52,7 @@ namespace AutolevelsEffect
             
             if (operation == Operation.Autolevels)
             {
+                // строим гистограмму яркости
                 byte[] rValues = new byte[256], gValues = new byte[256], bValues = new byte[256];
                 for (int i = 0; i < values.Length; i += 3)
                 {
@@ -61,12 +60,14 @@ namespace AutolevelsEffect
                     ++gValues[values[i + 1]];
                     ++bValues[values[i]];
                 }
+
+                // находим максимум и минимум, откуда будем растягивать для каждого канала
                 int rMin, rMax, gMin, gMax, bMin, bMax;
-                normalization = true;
                 FindMaxMin(rValues, out rMin, out rMax);
                 FindMaxMin(gValues, out gMin, out gMax);
                 FindMaxMin(bValues, out bMin, out bMax);
-                if ((rMin == rMax) || (gMin == gMax) || (bMin == bMax)) return original;
+
+                // делаем линейный сдвиг и радуемся
                 for (int i = 0; i < values.Length; i += 3)
                 {
                     values[i + 2] = CalculateNewValue(values[i + 2], rMin, rMax);
@@ -74,25 +75,29 @@ namespace AutolevelsEffect
                     values[i] = CalculateNewValue(values[i], bMin, bMax);
                 }
             }
-            else
+            else // Autocontrast
             {
                 byte[] cValues = new byte[256];
-                double[] hsv = RGB2HSV(values);
+                double[] hsv = RGB2HSV(values); // переводим в HSV
                 for (int i = 2; i < hsv.Length; i += 3)
-                    ++cValues[Convert.ToInt32(hsv[i] * 255)];
+                    ++cValues[Convert.ToInt32(hsv[i] * 255)]; // гистограмма. В HSV яркость представлена от 0 до 1, поэтому здесь линейно растягиваем на [0; 255]
                 int cMin, cMax;
-                FindMaxMin(cValues, out cMin, out cMax);
+                FindMaxMin(cValues, out cMin, out cMax); 
                 for (int i = 2; i < hsv.Length; i += 3)
                     hsv[i] = CalculateNewValue((byte)(hsv[i] * 255), cMin, cMax) / 255d;
                 values = HSV2RGB(hsv);
-            }
-            
+            }            
 
             System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);
             original.UnlockBits(bmpData);
             return original;
         }
 
+        /// <summary>
+        /// Переводит "сырой" массив значений HSV в "сырой" массив RGB
+        /// </summary>
+        /// <param name="hsv">Массив, в котором элемент #(3n) = hue, #(3n+1) = saturation, #(3n+2) = value</param>
+        /// <returns>Массив, в котором элемент #(3n) = blue, #(3n+1) = green, #(3n+2) = red</returns>
         private byte[] HSV2RGB(double[] hsv)
         {
             byte[] rgb = new byte[hsv.Length];
@@ -106,6 +111,11 @@ namespace AutolevelsEffect
             return rgb;
         }
 
+        /// <summary>
+        /// Переводит "сырой" массив значений RGB в "сырой" массив HSV
+        /// </summary>
+        /// <param name="values">Массив, в котором элемент #(3n) = blue, #(3n+1) = green, #(3n+2) = red</param>
+        /// <returns>Массив, в котором элемент #(3n) = hue, #(3n+1) = saturation, #(3n+2) = value</returns>
         private double[] RGB2HSV(byte[] values)
         {
             double[] hsv = new double[values.Length];
@@ -120,6 +130,13 @@ namespace AutolevelsEffect
             return hsv;
         }
 
+        /// <summary>
+        /// Перевод одного конкретного цвета RGB в HSV
+        /// </summary>
+        /// <param name="color">Цвет в RGB</param>
+        /// <param name="hue">Тон</param>
+        /// <param name="saturation">Насыщенность</param>
+        /// <param name="value">Яркость</param>
         void ColorToHSV(Color color, out double hue, out double saturation, out double value)
         {
             int max = Math.Max(color.R, Math.Max(color.G, color.B));
@@ -155,6 +172,13 @@ namespace AutolevelsEffect
                 return Color.FromArgb(255, v, p, q);
         }
 
+        /// <summary>
+        /// Линейный сдвиг, основываясь на концах растягиваемого отрезка
+        /// </summary>
+        /// <param name="old"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
         byte CalculateNewValue(byte old, int min, int max)
         {
             double res = (double)(old - min) / (max - min) * 255;
@@ -162,38 +186,25 @@ namespace AutolevelsEffect
             return (byte)res;
         }
 
-        private static void FindMaxMin(byte[] cValues, out int min, out int max)
+        /// <summary>
+        /// Не совсем линейное растяжение, здесь используется нормализация гистограммы. Выкидывается по меньшей мере 5% изображения с обоих концов гистограммы (самые темные и самые светлые)
+        /// </summary>
+        /// <param name="cValues"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        private void FindMaxMin(byte[] cValues, out int min, out int max)
         {
-            int minPos, maxPos;
-            if (normalization)
-            {
-                uint length = 0; for (byte i = 0; i < 255; ++i) length += cValues[i];
-                double sum = 0; int pos = 0;
-                while ((sum / length < .05) && (pos < cValues.Length - 1))
-                    sum += cValues[pos++];
-                minPos = pos;
-                sum = 0; pos = 255;
-                while ((sum / length < .05) && (pos > 0))
-                    sum += cValues[pos--];
-                maxPos = pos;
-                if (maxPos - minPos < 1)
-                {
-                    normalization = false;
-                    FindMinMaxNoNormalization(cValues, out minPos, out maxPos);
-                }
-            }
-            else FindMinMaxNoNormalization(cValues, out minPos, out maxPos);
-            min = minPos; max = maxPos;
-        }
+            uint length = 0; for (byte i = 0; i < 255; ++i) length += cValues[i]; // общее число элементов
+            
+            double sum = 0; int pos = 0;
+            while (sum / length < .05) // откидываем 5% слева
+                sum += cValues[pos++];
+            min = pos;
 
-        private static void FindMinMaxNoNormalization(byte[] cValues, out int minPos, out int maxPos)
-        {
-            int findPos = 0;
-            while (cValues[findPos++] == 0) ;
-            minPos = findPos;
-            findPos = 255;
-            while (cValues[findPos--] == 0) ;
-            maxPos = findPos;
+            sum = 0; pos = 255;
+            while (sum / length < .05) // откидываем 5% справа
+                sum += cValues[pos--];
+            max = pos;
         }
 
         public string MenuGroup

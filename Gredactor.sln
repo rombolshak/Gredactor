@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrayscaleEffect", "Grayscal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColorChannelEffect", "ColorChannelEffect\ColorChannelEffect.csproj", "{CD1A3794-1217-4775-8D29-3C8F2B2C0B30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutolevelsEffect", "AutolevelsEffect\AutolevelsEffect.csproj", "{CDBD3589-81F7-4E1C-889A-A050B15CFC8E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContrastEffect", "AutolevelsEffect\ContrastEffect.csproj", "{CDBD3589-81F7-4E1C-889A-A050B15CFC8E}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution

@@ -8,7 +8,7 @@
     <ProjectGuid>{CDBD3589-81F7-4E1C-889A-A050B15CFC8E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AutolevelsEffect</RootNamespace>
+    <RootNamespace>ContrastEffect</RootNamespace>
     <AssemblyName>AutolevelsEffect</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutolevelsEffect.cs" />
+    <Compile Include="ContrastEffect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
