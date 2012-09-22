@@ -56,6 +56,7 @@ namespace Gredactor
                         if (!menuStrip1.Items.ContainsKey(effect.MenuGroup))
                         {
                             ToolStripMenuItem newMenuGroup = new ToolStripMenuItem(effect.MenuGroup);
+                            newMenuGroup.Name = effect.MenuGroup;
                             newMenuGroup.DropDownItems.Add(item);
                             menuStrip1.Items.Add(newMenuGroup);
                         }

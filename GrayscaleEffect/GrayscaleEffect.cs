@@ -26,24 +26,39 @@ namespace GrayscaleEffect
         {
             Bitmap newBitmap = (Bitmap)original.Clone();
 
-            for (int x = 0; x < original.Width; x++)
+            Rectangle rect = new Rectangle(0, 0, newBitmap.Width, newBitmap.Height);
+            System.Drawing.Imaging.BitmapData bmpData = newBitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, newBitmap.PixelFormat);
+            IntPtr ptr = bmpData.Scan0;
+            int bytes = Math.Abs(bmpData.Stride) * bmpData.Height;
+            byte[] values = new byte[bytes];
+            System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
+
+            for (int i = 0; i < values.Length; i += 3)
             {
-                for (int y = 0; y < original.Height; y++)
-                {
-                    //get the pixel from the original image
-                    Color originalColor = original.GetPixel(x, y);
-
-                    //create the grayscale version of the pixel
-                    int grayScale = (int)((originalColor.R * .3) + (originalColor.G * .59)
-                        + (originalColor.B * .11));
-
-                    //create the color object
-                    Color newColor = Color.FromArgb(grayScale, grayScale, grayScale);
-
-                    //set the new image's pixel to the grayscale version
-                    newBitmap.SetPixel(x, y, newColor);
-                }
+                byte gray = (byte)(values[i] * .3 + values[i + 1] * .59 + values[i + 2] * .11);
+                values[i] = values[i + 1] = values[i + 2] = gray;
             }
+
+            System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);
+            newBitmap.UnlockBits(bmpData);
+            //for (int x = 0; x < original.Width; x++)
+            //{
+            //    for (int y = 0; y < original.Height; y++)
+            //    {
+            //        //get the pixel from the original image
+            //        Color originalColor = original.GetPixel(x, y);
+
+            //        //create the grayscale version of the pixel
+            //        int grayScale = (int)((originalColor.R * .3) + (originalColor.G * .59)
+            //            + (originalColor.B * .11));
+
+            //        //create the color object
+            //        Color newColor = Color.FromArgb(grayScale, grayScale, grayScale);
+
+            //        //set the new image's pixel to the grayscale version
+            //        newBitmap.SetPixel(x, y, newColor);
+            //    }
+            //}
 
             return newBitmap;
         }
