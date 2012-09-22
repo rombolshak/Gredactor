@@ -24,10 +24,10 @@ namespace GrayscaleEffect
         }
         public Bitmap Apply(Bitmap original)
         {
-            Bitmap newBitmap = (Bitmap)original.Clone();
+            //Bitmap newBitmap = (Bitmap)original.Clone();
 
-            Rectangle rect = new Rectangle(0, 0, newBitmap.Width, newBitmap.Height);
-            System.Drawing.Imaging.BitmapData bmpData = newBitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, newBitmap.PixelFormat);
+            Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
+            System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, original.PixelFormat);
             IntPtr ptr = bmpData.Scan0;
             int bytes = Math.Abs(bmpData.Stride) * bmpData.Height;
             byte[] values = new byte[bytes];
@@ -35,12 +35,13 @@ namespace GrayscaleEffect
 
             for (int i = 0; i < values.Length; i += 3)
             {
-                byte gray = (byte)(values[i] * .3 + values[i + 1] * .59 + values[i + 2] * .11);
+                byte gray = (byte)(values[i + 2] * .3 + values[i + 1] * .59 + values[i] * .11);
                 values[i] = values[i + 1] = values[i + 2] = gray;
             }
 
             System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);
-            newBitmap.UnlockBits(bmpData);
+            original.UnlockBits(bmpData);
+            return original;
             //for (int x = 0; x < original.Width; x++)
             //{
             //    for (int y = 0; y < original.Height; y++)
@@ -60,7 +61,7 @@ namespace GrayscaleEffect
             //    }
             //}
 
-            return newBitmap;
+            //return newBitmap;
         }
 
         public string MenuGroup

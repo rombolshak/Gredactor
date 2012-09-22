@@ -273,7 +273,8 @@ namespace Gredactor
             {
                 Logger.Log("Retrieve from stack");
                 _currentImage = (Bitmap)_undoStack.Pop();
-                SetSelection(new Rectangle(_selectionStartPoint, new Size(_selection.Width, _selection.Height)));
+                Logger.Log("Update selection");
+                if (_selection != null) SetSelection(new Rectangle(_selectionStartPoint, new Size(_selection.Width, _selection.Height)));
                 Logger.Log("Setting \"WasChanged\"");
                 this.WasChanged = true;
             }

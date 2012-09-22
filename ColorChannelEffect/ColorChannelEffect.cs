@@ -35,18 +35,35 @@ namespace ColorChannelEffect
         }
         public Bitmap Apply(Bitmap original)
         {
-            Bitmap result = new System.Drawing.Bitmap(original.Width, original.Height);
-            for (int x = 0; x < original.Width; ++x)
-                for (int y = 0; y < original.Height; ++y)
-                {
-                    Color c = original.GetPixel(x, y);
-                    int r,g,b;
-                    if (color != Colors.Red) r = c.R - 255; else r = c.R; if (r < 0) r = 0;
-                    if (color != Colors.Green) g = c.G - 255; else g = c.G; if (g < 0) g = 0;
-                    if (color != Colors.Blue) b = c.B - 255; else b = c.B; if (b < 0) b = 0;
-                    result.SetPixel(x, y, Color.FromArgb(r, g, b));
-                }
-            return result;
+            Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
+            System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, original.PixelFormat);
+            IntPtr ptr = bmpData.Scan0;
+            int bytes = Math.Abs(bmpData.Stride) * bmpData.Height;
+            byte[] values = new byte[bytes];
+            System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
+
+            for (int i = 0; i < values.Length; i += 3)
+            {
+                if (color != Colors.Red) values[i + 2] = (values[i + 2] - 255 < 0) ? (byte)0 : (byte)(values[i + 2] - 255);//values[i] -= 255; if (values[i] < 0) values[i] = 0;
+                if (color != Colors.Green) values[i + 1] = (values[i + 1] - 255 < 0) ? (byte)0 : (byte)(values[i + 1] - 255);
+                if (color != Colors.Blue) values[i] = (values[i] - 255 < 0) ? (byte)0 : (byte)(values[i] - 255);
+            }
+
+            System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);
+            original.UnlockBits(bmpData);
+            return original;
+            //Bitmap result = new System.Drawing.Bitmap(original.Width, original.Height);
+            //for (int x = 0; x < original.Width; ++x)
+            //    for (int y = 0; y < original.Height; ++y)
+            //    {
+            //        Color c = original.GetPixel(x, y);
+            //        int r,g,b;
+            //        if (color != Colors.Red) r = c.R - 255; else r = c.R; if (r < 0) r = 0;
+            //        if (color != Colors.Green) g = c.G - 255; else g = c.G; if (g < 0) g = 0;
+            //        if (color != Colors.Blue) b = c.B - 255; else b = c.B; if (b < 0) b = 0;
+            //        result.SetPixel(x, y, Color.FromArgb(r, g, b));
+            //    }
+            //return result;
         }
 
         public string MenuGroup
