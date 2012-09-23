@@ -40,7 +40,7 @@ namespace GrayworldEffect
                 N += 1;
                 rAvg += values[i + 2];
                 gAvg += values[i + 1];
-                bAvg += values[i];
+                bAvg += values[i + 0];
             }
             rAvg /= N;
             gAvg /= N;

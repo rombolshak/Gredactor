@@ -38,7 +38,7 @@ namespace Gredactor
                 foreach (Button btn in effect.Buttons)
                 {
                     btn.Height = 25;
-                    btn.Width = 87;
+                    btn.Width = 137;
                     btn.Location = new Point(x, y);
                     btn.Tag = Tuple.Create<IEffect, object>(effect, btn.Tag);
                     btn.Click += new EventHandler(effectButtonClick);

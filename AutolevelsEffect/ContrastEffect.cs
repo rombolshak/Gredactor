@@ -58,7 +58,7 @@ namespace ContrastEffect
                 {
                     ++rValues[values[i + 2]];
                     ++gValues[values[i + 1]];
-                    ++bValues[values[i]];
+                    ++bValues[values[i + 0]];
                 }
 
                 // находим максимум и минимум, откуда будем растягивать для каждого канала
@@ -72,7 +72,7 @@ namespace ContrastEffect
                 {
                     values[i + 2] = CalculateNewValue(values[i + 2], rMin, rMax);
                     values[i + 1] = CalculateNewValue(values[i + 1], gMin, gMax);
-                    values[i] = CalculateNewValue(values[i], bMin, bMax);
+                    values[i + 0] = CalculateNewValue(values[i + 0], bMin, bMax);
                 }
             }
             else // Autocontrast
@@ -80,11 +80,11 @@ namespace ContrastEffect
                 byte[] cValues = new byte[256];
                 double[] hsv = RGB2HSV(values); // переводим в HSV
                 for (int i = 2; i < hsv.Length; i += 3)
-                    ++cValues[Convert.ToInt32(hsv[i] * 255)]; // гистограмма. В HSV яркость представлена от 0 до 1, поэтому здесь линейно растягиваем на [0; 255]
+                    ++cValues[Convert.ToInt32(hsv[i+0] * 255)]; // гистограмма. В HSV яркость представлена от 0 до 1, поэтому здесь линейно растягиваем на [0; 255]
                 int cMin, cMax;
                 FindMaxMin(cValues, out cMin, out cMax); 
                 for (int i = 2; i < hsv.Length; i += 3)
-                    hsv[i] = CalculateNewValue((byte)(hsv[i] * 255), cMin, cMax) / 255d;
+                    hsv[i+0] = CalculateNewValue((byte)(hsv[i+0] * 255), cMin, cMax) / 255d;
                 values = HSV2RGB(hsv);
             }            
 
@@ -103,10 +103,10 @@ namespace ContrastEffect
             byte[] rgb = new byte[hsv.Length];
             for (int i = 0; i < hsv.Length; i += 3)
             {
-                Color c = ColorFromHSV(hsv[i], hsv[i + 1], hsv[i + 2]);
+                Color c = ColorFromHSV(hsv[i+0], hsv[i + 1], hsv[i + 2]);
                 rgb[i + 2] = c.R;
                 rgb[i + 1] = c.G;
-                rgb[i] = c.B;
+                rgb[i + 0] = c.B;
             }
             return rgb;
         }
@@ -122,8 +122,8 @@ namespace ContrastEffect
             for (int i = 0; i < values.Length; i += 3)
             {
                 double hue, saturation, value;
-                ColorToHSV(Color.FromArgb(values[i + 2], values[i + 1], values[i]), out hue, out saturation, out value);
-                hsv[i] = hue;
+                ColorToHSV(Color.FromArgb(values[i + 2], values[i + 1], values[i+0]), out hue, out saturation, out value);
+                hsv[i + 0] = hue;
                 hsv[i + 1] = saturation;
                 hsv[i + 2] = value;
             }
@@ -194,7 +194,7 @@ namespace ContrastEffect
         /// <param name="max"></param>
         private void FindMaxMin(byte[] cValues, out int min, out int max)
         {
-            uint length = 0; for (byte i = 0; i < 255; ++i) length += cValues[i]; // общее число элементов
+            uint length = 0; for (byte i = 0; i < 255; ++i) length += cValues[i+0]; // общее число элементов
             
             double sum = 0; int pos = 0;
             while (sum / length < .05) // откидываем 5% слева
@@ -209,7 +209,7 @@ namespace ContrastEffect
 
         public string MenuGroup
         {
-            get { return "Фильтры"; }
+            get { return "Контрастность"; }
         }
 
         public ToolStripMenuItem[] MenuItems
@@ -217,7 +217,7 @@ namespace ContrastEffect
             get
             {
                 ToolStripMenuItem b1 = new ToolStripMenuItem(), b2 = new ToolStripMenuItem();
-                b1.Text = "Autocontrast"; b2.Text = "Autolevels";
+                b1.Text = "Автоконтраст"; b2.Text = "Autolevels";// не знаю, как правильнее перевести Autolevels :(
                 b1.Tag = Operation.Autocontrast; b2.Tag = Operation.Autolevels;
                 return new ToolStripMenuItem[] { b1, b2 };
             }
@@ -227,7 +227,7 @@ namespace ContrastEffect
         {
             get {
                 Button b1 = new Button(), b2 = new Button();
-                b1.Text = "Autocontrast"; b2.Text = "Autolevels";
+                b1.Text = "Автоконтраст"; b2.Text = "Autolevels";
                 b1.Tag = Operation.Autocontrast; b2.Tag = Operation.Autolevels;
                 return new Button[] {b1, b2};
             }

@@ -10,7 +10,7 @@ namespace ColorChannelEffect
 {
     public class ColorChannelEffect : IEffect
     {
-        enum Colors {None, Red, Green, Blue };
+        enum Colors { None, Red, Green, Blue };
         Colors color = Colors.None;
 
         public string Name
@@ -45,9 +45,9 @@ namespace ColorChannelEffect
 
             for (int i = 0; i < values.Length; i += 3)
             {
-                if (color != Colors.Red) values[i + 2] = (values[i + 2] - 255 < 0) ? (byte)0 : (byte)(values[i + 2] - 255);//values[i] -= 255; if (values[i] < 0) values[i] = 0;
+                if (color != Colors.Red)   values[i + 2] = (values[i + 2] - 255 < 0) ? (byte)0 : (byte)(values[i + 2] - 255);//values[i+0] -= 255; if (values[i+0] < 0) values[i+0] = 0;
                 if (color != Colors.Green) values[i + 1] = (values[i + 1] - 255 < 0) ? (byte)0 : (byte)(values[i + 1] - 255);
-                if (color != Colors.Blue) values[i] = (values[i] - 255 < 0) ? (byte)0 : (byte)(values[i] - 255);
+                if (color != Colors.Blue)  values[i + 0] = (values[i + 0] - 255 < 0) ? (byte)0 : (byte)(values[i + 0] - 255);
             }
 
             System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);

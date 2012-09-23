@@ -10,7 +10,7 @@ namespace GrayscaleEffect
     {
         public string Name
         {
-            get { return "Grayscale"; }
+            get { return "Оттенки серого"; }
         }
 
         public string Description
@@ -35,8 +35,8 @@ namespace GrayscaleEffect
 
             for (int i = 0; i < values.Length; i += 3)
             {
-                byte gray = (byte)(values[i + 2] * .3 + values[i + 1] * .59 + values[i] * .11);
-                values[i] = values[i + 1] = values[i + 2] = gray;
+                byte gray = (byte)(values[i + 2] * .3 + values[i + 1] * .59 + values[i+0] * .11);
+                values[i + 0] = values[i + 1] = values[i + 2] = gray;
             }
 
             System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);
@@ -74,7 +74,7 @@ namespace GrayscaleEffect
             get 
             {
                 System.Windows.Forms.ToolStripMenuItem item = new System.Windows.Forms.ToolStripMenuItem();
-                item.Text = "Grayscale";
+                item.Text = this.Name;
                 item.Name = "grayscaleMenuItem";
                 return new System.Windows.Forms.ToolStripMenuItem[] { item };
             }
@@ -86,7 +86,7 @@ namespace GrayscaleEffect
             {
                 System.Windows.Forms.Button[] arr = new System.Windows.Forms.Button[1];
                 System.Windows.Forms.Button b = new System.Windows.Forms.Button();
-                b.Text = "Grayscale";
+                b.Text = this.Name;
                 arr[0] = b;
                 return arr;
             }
