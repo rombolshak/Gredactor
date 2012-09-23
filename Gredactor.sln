@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrayworldEffect", "Grayworl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilterProcessing", "FilterProcessing\FilterProcessing.csproj", "{CCE767A1-7223-461A-A413-2225BBE20DE4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GaussBlurEffect", "GaussBlurEffect\GaussBlurEffect.csproj", "{70D2C305-AC26-4A91-AEA9-6F8C12713EBE}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Gredactor.vsmdi
@@ -108,6 +110,16 @@ Global
 		{CCE767A1-7223-461A-A413-2225BBE20DE4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{CCE767A1-7223-461A-A413-2225BBE20DE4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{CCE767A1-7223-461A-A413-2225BBE20DE4}.Release|x86.ActiveCfg = Release|Any CPU
+		{70D2C305-AC26-4A91-AEA9-6F8C12713EBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70D2C305-AC26-4A91-AEA9-6F8C12713EBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70D2C305-AC26-4A91-AEA9-6F8C12713EBE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{70D2C305-AC26-4A91-AEA9-6F8C12713EBE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{70D2C305-AC26-4A91-AEA9-6F8C12713EBE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{70D2C305-AC26-4A91-AEA9-6F8C12713EBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70D2C305-AC26-4A91-AEA9-6F8C12713EBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70D2C305-AC26-4A91-AEA9-6F8C12713EBE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{70D2C305-AC26-4A91-AEA9-6F8C12713EBE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{70D2C305-AC26-4A91-AEA9-6F8C12713EBE}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

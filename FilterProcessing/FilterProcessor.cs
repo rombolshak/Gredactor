@@ -37,6 +37,7 @@ namespace FilterProcessing
         {
             if (matrix.Length == 0) return false;
             for (int i = 0; i < matrix.Length; ++i) if (matrix.Length != matrix[i].Length) return false;
+            if (matrix.Length % 1 != 1) return false;
             return true;
         }
 
@@ -83,7 +84,64 @@ namespace FilterProcessing
             }
             else
             {
+                byte[] tmpValues = new byte[bytes];
+                for (int y = 0; y < bmpData.Height; ++y)
+                {
+                    for (int x = 0; x < bmpData.Width; ++x)
+                    {
+                        int index = GetIndex(x, y, bmpData.Width);
+                        double sum = 0, r = 0, g = 0, b = 0;
+                        for (int k = -_matrix[0].Length / 2; k < _matrix[0].Length / 2; ++k)
+                        {
+                            int i = x + k;
+                            if ((i < 0) || (i >= bmpData.Width)) continue;
+                            int matrIndex = GetIndex(i, y, bmpData.Width);
+                            double weight = _matrix[0][k + _matrix[0].Length / 2];
+                            r += values[matrIndex + 2] * weight;
+                            g += values[matrIndex + 1] * weight;
+                            b += values[matrIndex + 0] * weight;
+                            sum += weight;
+                        }
 
+                        if (sum == 0) sum = 1;
+                        r /= sum;
+                        g /= sum;
+                        b /= sum;
+
+                        tmpValues[index + 3] = (byte)255;
+                        tmpValues[index + 2] = (byte)r;
+                        tmpValues[index + 1] = (byte)g;
+                        tmpValues[index + 0] = (byte)b;
+                    }
+                }
+                int kqq = bmpData.Height + bmpData.Width;
+                for (int x = 0; x < bmpData.Width; ++x)
+                    for (int y = 0; y < bmpData.Height; ++y)
+                    {
+                        int index = GetIndex(x, y, bmpData.Width);
+                        double sum = 0, r = 0, g = 0, b = 0;
+                        for (int k = -_matrix[0].Length / 2; k < _matrix[0].Length / 2; ++k)
+                        {
+                            int i = y + k;
+                            if ((i < 0) || (i >= bmpData.Height)) continue;
+                            int matrIndex = GetIndex(x, i, bmpData.Width);
+                            double weight = _matrix[0][k + _matrix[0].Length / 2];
+                            r += tmpValues[matrIndex + 2] * weight;
+                            g += tmpValues[matrIndex + 1] * weight;
+                            b += tmpValues[matrIndex + 0] * weight;
+                            sum += weight;
+                        }
+
+                        if (sum == 0) sum = 1;
+                        r /= sum;
+                        g /= sum;
+                        b /= sum;
+
+                        newValues[index + 3] = (byte)255;
+                        newValues[index + 2] = (byte)r;
+                        newValues[index + 1] = (byte)g;
+                        newValues[index + 0] = (byte)b;
+                    }
             }
 
             System.Runtime.InteropServices.Marshal.Copy(newValues, 0, ptr, bytes);
