@@ -54,7 +54,7 @@ namespace ContrastEffect
             {
                 // строим гистограмму яркости
                 byte[] rValues = new byte[256], gValues = new byte[256], bValues = new byte[256];
-                for (int i = 0; i < values.Length; i += 3)
+                for (int i = 0; i < values.Length - 1; i += 3)
                 {
                     ++rValues[values[i + 2]];
                     ++gValues[values[i + 1]];
@@ -68,7 +68,7 @@ namespace ContrastEffect
                 FindMaxMin(bValues, out bMin, out bMax);
 
                 // делаем линейный сдвиг и радуемся
-                for (int i = 0; i < values.Length; i += 3)
+                for (int i = 0; i < values.Length - 1; i += 3)
                 {
                     values[i + 2] = CalculateNewValue(values[i + 2], rMin, rMax);
                     values[i + 1] = CalculateNewValue(values[i + 1], gMin, gMax);
@@ -79,11 +79,11 @@ namespace ContrastEffect
             {
                 byte[] cValues = new byte[256];
                 double[] hsv = RGB2HSV(values); // переводим в HSV
-                for (int i = 2; i < hsv.Length; i += 3)
+                for (int i = 2; i < hsv.Length - 1; i += 3)
                     ++cValues[Convert.ToInt32(hsv[i+0] * 255)]; // гистограмма. В HSV яркость представлена от 0 до 1, поэтому здесь линейно растягиваем на [0; 255]
                 int cMin, cMax;
                 FindMaxMin(cValues, out cMin, out cMax); 
-                for (int i = 2; i < hsv.Length; i += 3)
+                for (int i = 2; i < hsv.Length - 1; i += 3)
                     hsv[i+0] = CalculateNewValue((byte)(hsv[i+0] * 255), cMin, cMax) / 255d;
                 values = HSV2RGB(hsv);
             }            
@@ -101,7 +101,7 @@ namespace ContrastEffect
         private byte[] HSV2RGB(double[] hsv)
         {
             byte[] rgb = new byte[hsv.Length];
-            for (int i = 0; i < hsv.Length; i += 3)
+            for (int i = 0; i < hsv.Length - 1; i += 3)
             {
                 Color c = ColorFromHSV(hsv[i+0], hsv[i + 1], hsv[i + 2]);
                 rgb[i + 2] = c.R;
@@ -119,7 +119,7 @@ namespace ContrastEffect
         private double[] RGB2HSV(byte[] values)
         {
             double[] hsv = new double[values.Length];
-            for (int i = 0; i < values.Length; i += 3)
+            for (int i = 0; i < values.Length - 1; i += 3)
             {
                 double hue, saturation, value;
                 ColorToHSV(Color.FromArgb(values[i + 2], values[i + 1], values[i+0]), out hue, out saturation, out value);

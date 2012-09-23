@@ -33,7 +33,7 @@ namespace GrayscaleEffect
             byte[] values = new byte[bytes];
             System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
 
-            for (int i = 0; i < values.Length; i += 3)
+            for (int i = 0; i < values.Length - 1; i += 3)
             {
                 byte gray = (byte)(values[i + 2] * .3 + values[i + 1] * .59 + values[i+0] * .11);
                 values[i + 0] = values[i + 1] = values[i + 2] = gray;

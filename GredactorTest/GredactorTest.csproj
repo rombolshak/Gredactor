@@ -52,12 +52,17 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FilterProcessorTest.cs" />
     <Compile Include="GrayscaleTest.cs" />
     <Compile Include="ImageTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GredactorTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FilterProcessing\FilterProcessing.csproj">
+      <Project>{CCE767A1-7223-461A-A413-2225BBE20DE4}</Project>
+      <Name>FilterProcessing</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GrayscaleEffect\GrayscaleEffect.csproj">
       <Project>{48C8EABF-85AE-4CD5-8FA6-DEE10DE08325}</Project>
       <Name>GrayscaleEffect</Name>

@@ -43,7 +43,7 @@ namespace ColorChannelEffect
             byte[] values = new byte[bytes];
             System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
 
-            for (int i = 0; i < values.Length; i += 3)
+            for (int i = 0; i < values.Length - 1; i += 3)
             {
                 if (color != Colors.Red)   values[i + 2] = (values[i + 2] - 255 < 0) ? (byte)0 : (byte)(values[i + 2] - 255);//values[i+0] -= 255; if (values[i+0] < 0) values[i+0] = 0;
                 if (color != Colors.Green) values[i + 1] = (values[i + 1] - 255 < 0) ? (byte)0 : (byte)(values[i + 1] - 255);

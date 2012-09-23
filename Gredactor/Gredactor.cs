@@ -39,6 +39,7 @@ namespace Gredactor
         [STAThread]
         static void Main()
         {
+            //GenImage();
             try
             {
                 Logger.Log("Starting");
@@ -55,6 +56,28 @@ namespace Gredactor
             {
                 System.Windows.Forms.MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private static void GenImage()
+        {
+            System.Drawing.Bitmap original = new System.Drawing.Bitmap(512, 512);
+            System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, original.Width, original.Height);
+            System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, original.PixelFormat);
+            IntPtr ptr = bmpData.Scan0;
+            int bytes = Math.Abs(bmpData.Stride) * bmpData.Height;
+            byte[] values = new byte[bytes];
+            System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
+            Random r = new Random();
+            for (int i = 0; i < values.Length-2; i += 3)
+            {
+                values[i + 2] = (byte)r.Next(0, 128);
+                values[i + 1] = (byte)r.Next(0, 255);
+                values[i] = (byte)r.Next(128, 255);
+            }
+
+            System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);
+            original.UnlockBits(bmpData);
+            original.Save("out.jpg");
         }
 
         static void FindPlugins()
