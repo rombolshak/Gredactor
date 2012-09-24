@@ -184,5 +184,44 @@ namespace GredactorTest
             Assert.IsTrue(bmp.GetPixel(3, 4) == System.Drawing.Color.FromArgb(20,20,20));
             Assert.IsTrue(bmp.GetPixel(4, 4) == System.Drawing.Color.FromArgb(21,21,21));
         }
+
+        [TestMethod]
+        public void TestSeparation()
+        {
+            System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(5, 5);
+            for (int x = 0; x < 5; ++x) for (int y = 0; y < 5; ++y) bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(x + y * 5, x + y * 5, x + y * 5));
+            processor = new FilterProcessing.FilterProcessor(new double[][] { new double[] { 1, 0, 0 } }, true);
+            bmp = processor.Process(bmp);
+
+            Assert.IsTrue(bmp.GetPixel(0, 0) == System.Drawing.Color.FromArgb(0, 0, 0));
+            Assert.IsTrue(bmp.GetPixel(1, 0) == System.Drawing.Color.FromArgb(0, 0, 0));
+            Assert.IsTrue(bmp.GetPixel(2, 0) == System.Drawing.Color.FromArgb(0, 0, 0));
+            Assert.IsTrue(bmp.GetPixel(3, 0) == System.Drawing.Color.FromArgb(0, 0, 0));
+            Assert.IsTrue(bmp.GetPixel(4, 0) == System.Drawing.Color.FromArgb(0, 0, 0));
+
+            Assert.IsTrue(bmp.GetPixel(0, 1) == System.Drawing.Color.FromArgb(0, 0, 0));
+            Assert.IsTrue(bmp.GetPixel(1, 1) == System.Drawing.Color.FromArgb(0, 0, 0));
+            Assert.IsTrue(bmp.GetPixel(2, 1) == System.Drawing.Color.FromArgb(1,1,1));
+            Assert.IsTrue(bmp.GetPixel(3, 1) == System.Drawing.Color.FromArgb(2,2,2));
+            Assert.IsTrue(bmp.GetPixel(4, 1) == System.Drawing.Color.FromArgb(3,3,3));
+
+            Assert.IsTrue(bmp.GetPixel(0, 2) == System.Drawing.Color.FromArgb(0,0,0));
+            Assert.IsTrue(bmp.GetPixel(1, 2) == System.Drawing.Color.FromArgb(5,5,5));
+            Assert.IsTrue(bmp.GetPixel(2, 2) == System.Drawing.Color.FromArgb(6,6,6));
+            Assert.IsTrue(bmp.GetPixel(3, 2) == System.Drawing.Color.FromArgb(7,7,7));
+            Assert.IsTrue(bmp.GetPixel(4, 2) == System.Drawing.Color.FromArgb(8,8,8));
+
+            Assert.IsTrue(bmp.GetPixel(0, 3) == System.Drawing.Color.FromArgb(0,0,0));
+            Assert.IsTrue(bmp.GetPixel(1, 3) == System.Drawing.Color.FromArgb(10,10,10));
+            Assert.IsTrue(bmp.GetPixel(2, 3) == System.Drawing.Color.FromArgb(11, 11,11));
+            Assert.IsTrue(bmp.GetPixel(3, 3) == System.Drawing.Color.FromArgb(12,12,12));
+            Assert.IsTrue(bmp.GetPixel(4, 3) == System.Drawing.Color.FromArgb(13,13,13));
+
+            Assert.IsTrue(bmp.GetPixel(0, 4) == System.Drawing.Color.FromArgb(0,0,0));
+            Assert.IsTrue(bmp.GetPixel(1, 4) == System.Drawing.Color.FromArgb(15,15,15));
+            Assert.IsTrue(bmp.GetPixel(2, 4) == System.Drawing.Color.FromArgb(16,16,16));
+            Assert.IsTrue(bmp.GetPixel(3, 4) == System.Drawing.Color.FromArgb(17,17,17));
+            Assert.IsTrue(bmp.GetPixel(4, 4) == System.Drawing.Color.FromArgb(18,18,18));
+        }
     }
 }

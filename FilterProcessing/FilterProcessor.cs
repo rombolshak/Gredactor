@@ -9,6 +9,7 @@ namespace FilterProcessing
     {
         private double[][] _matrix;
         private bool _separation;
+        private int _channelCount;
 
         public FilterProcessor(double[][] matrix, bool separation = false)
         {
@@ -37,7 +38,7 @@ namespace FilterProcessing
         {
             if (matrix.Length == 0) return false;
             for (int i = 0; i < matrix.Length; ++i) if (matrix.Length != matrix[i].Length) return false;
-            if (matrix.Length % 1 != 1) return false;
+            if (matrix.Length % 2 != 1) return false;
             return true;
         }
 
@@ -50,6 +51,8 @@ namespace FilterProcessing
             byte[] values = new byte[bytes];
             byte[] newValues = new byte[bytes];
             System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
+
+            _channelCount = values.Length / (bmpData.Width * bmpData.Height); // 3 либо 4
 
             if (!_separation)
             {
@@ -76,7 +79,7 @@ namespace FilterProcessing
                         g /= sum;
                         b /= sum;
 
-                        newValues[index + 3] = (byte)255;
+                       if (_channelCount == 4) newValues[index + 3] = (byte)255;
                         newValues[index + 2] = (byte)r;
                         newValues[index + 1] = (byte)g;
                         newValues[index + 0] = (byte)b;
@@ -90,12 +93,17 @@ namespace FilterProcessing
                     for (int x = 0; x < bmpData.Width; ++x)
                     {
                         int index = GetIndex(x, y, bmpData.Width);
+                        if ((index + 2 >= values.Length) || (index + 1 >= values.Length) || (index >= values.Length)) continue;
+
                         double sum = 0, r = 0, g = 0, b = 0;
                         for (int k = -_matrix[0].Length / 2; k < _matrix[0].Length / 2; ++k)
                         {
                             int i = x + k;
                             if ((i < 0) || (i >= bmpData.Width)) continue;
                             int matrIndex = GetIndex(i, y, bmpData.Width);
+
+                            if ((matrIndex + 2 >= values.Length) || (matrIndex + 1 >= values.Length) || (matrIndex >= values.Length)) continue;
+
                             double weight = _matrix[0][k + _matrix[0].Length / 2];
                             r += values[matrIndex + 2] * weight;
                             g += values[matrIndex + 1] * weight;
@@ -108,7 +116,7 @@ namespace FilterProcessing
                         g /= sum;
                         b /= sum;
 
-                        tmpValues[index + 3] = (byte)255;
+                        if (_channelCount == 4) tmpValues[index + 3] = (byte)255;
                         tmpValues[index + 2] = (byte)r;
                         tmpValues[index + 1] = (byte)g;
                         tmpValues[index + 0] = (byte)b;
@@ -119,12 +127,17 @@ namespace FilterProcessing
                     for (int y = 0; y < bmpData.Height; ++y)
                     {
                         int index = GetIndex(x, y, bmpData.Width);
+                        if ((index + 2 >= tmpValues.Length) || (index + 1 >= tmpValues.Length) || (index >= tmpValues.Length)) continue;
+
                         double sum = 0, r = 0, g = 0, b = 0;
                         for (int k = -_matrix[0].Length / 2; k < _matrix[0].Length / 2; ++k)
                         {
                             int i = y + k;
                             if ((i < 0) || (i >= bmpData.Height)) continue;
                             int matrIndex = GetIndex(x, i, bmpData.Width);
+
+                            if ((matrIndex + 2 >= tmpValues.Length) || (matrIndex + 1 >= tmpValues.Length) || (matrIndex >= tmpValues.Length)) continue;
+
                             double weight = _matrix[0][k + _matrix[0].Length / 2];
                             r += tmpValues[matrIndex + 2] * weight;
                             g += tmpValues[matrIndex + 1] * weight;
@@ -137,7 +150,7 @@ namespace FilterProcessing
                         g /= sum;
                         b /= sum;
 
-                        newValues[index + 3] = (byte)255;
+                        if (_channelCount == 4) newValues[index + 3] = (byte)255;
                         newValues[index + 2] = (byte)r;
                         newValues[index + 1] = (byte)g;
                         newValues[index + 0] = (byte)b;
@@ -151,7 +164,7 @@ namespace FilterProcessing
 
         int GetIndex(int x, int y, int width)
         {
-            return (x + y * width) * 4;
+            return (x + y * width) * _channelCount;
         }
     }
 }
