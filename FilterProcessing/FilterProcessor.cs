@@ -25,15 +25,6 @@ namespace FilterProcessing
             _separation = false;
         }
 
-        public bool UseSeparation { get { return _separation; } set { _separation = value; } }
-
-        public bool SetMatrix(double[][] matrix)
-        {
-            if (CheckMatrixIsCorrect(matrix))
-                return (_matrix = matrix) == _matrix;
-            return false;
-        }
-
         private bool CheckMatrixIsCorrect(double[][] matrix)
         {
             if (matrix.Length == 0) return false;
@@ -53,113 +44,104 @@ namespace FilterProcessing
             System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
 
             _channelCount = values.Length / (bmpData.Width * bmpData.Height); // 3 либо 4
-
+            
+            // Дальше многа букафф, но я не смог придумать, как это записать более красиво без введения ещё кучи параметров
             if (!_separation)
             {
+                // обычная квадратная матрица без особых неожиданностей. То, что она квадратная, гарантирует конструктор/свойство
                 for (int y = 0; y < bmpData.Height; ++y)
                     for (int x = 0; x < bmpData.Width; ++x)
                     {
-                        int index = GetIndex(x, y, bmpData.Width);
-                        double r = 0, g = 0, b = 0;
-                        double sum = 0;
+                        int index = GetIndex(x, y, bmpData.Width); // куды вставлять
+                        double r = 0, g = 0, b = 0, sum = 0;
                         for (int j = -_matrix.Length / 2; j <= _matrix.Length/2; ++j)
                             for (int i = -_matrix.Length / 2; i <= _matrix.Length / 2; ++i)
                             {
+                                // Идем по ядру. Если пиксель находится за пределами изображение, то я ничего не отражаю, не заворачиваю, а тупо игнорирую
+                                // Ну, не совсем тупо. Коэффициент нормировки пересчитывается на такой случай.
+                                // Вывод -- не нужно подавать на вход уже отнормированную руками матрицу. Не надо. Получится не совсем то :)
+                                // Т.е для box-фильтра нужно подать именно матрицу из единиц, а не из 1/9
+
                                 if ((x + i < 0) || (x + i >= bmpData.Width) || (y + j < 0) || (y + j >= bmpData.Height)) continue;
-                                int matrIndex = GetIndex(x + i, y + j, bmpData.Width);
+                                int matrIndex = GetIndex(x + i, y + j, bmpData.Width); // влияющий сейчас пиксель
                                 double weight = _matrix[i + _matrix.Length / 2][j + _matrix.Length / 2];
-                                r += values[matrIndex + 2] * weight;
-                                g += values[matrIndex + 1] * weight;
-                                b += values[matrIndex + 0] * weight;
-                                sum += weight;
+                                SumValues(values, ref sum, ref r, ref g, ref b, matrIndex, weight);
                             }
-
-                        if (sum == 0) sum = 1;
-                        r /= sum;
-                        g /= sum;
-                        b /= sum;
-
-                       if (_channelCount == 4) newValues[index + 3] = (byte)255;
-                        newValues[index + 2] = (byte)r;
-                        newValues[index + 1] = (byte)g;
-                        newValues[index + 0] = (byte)b;
+                        NormalizeValues(ref r, ref g, ref b, ref sum); // там нормировка
+                        WriteNewValues(newValues, index, r, g, b);
                     }
             }
             else
             {
+                // сепарабельный фильтр
                 byte[] tmpValues = new byte[bytes];
+
+                // проход по строкам
                 for (int y = 0; y < bmpData.Height; ++y)
                 {
                     for (int x = 0; x < bmpData.Width; ++x)
                     {
                         int index = GetIndex(x, y, bmpData.Width);
-                        if ((index + 2 >= values.Length) || (index + 1 >= values.Length) || (index >= values.Length)) continue;
-
                         double sum = 0, r = 0, g = 0, b = 0;
-                        for (int k = -_matrix[0].Length / 2; k < _matrix[0].Length / 2; ++k)
+                        for (int k = -_matrix[0].Length / 2; k < _matrix[0].Length / 2; ++k) // здесь матрица суть вектор, инфа 100%
                         {
                             int i = x + k;
                             if ((i < 0) || (i >= bmpData.Width)) continue;
                             int matrIndex = GetIndex(i, y, bmpData.Width);
-
-                            if ((matrIndex + 2 >= values.Length) || (matrIndex + 1 >= values.Length) || (matrIndex >= values.Length)) continue;
-
                             double weight = _matrix[0][k + _matrix[0].Length / 2];
-                            r += values[matrIndex + 2] * weight;
-                            g += values[matrIndex + 1] * weight;
-                            b += values[matrIndex + 0] * weight;
-                            sum += weight;
+                            SumValues(values, ref sum, ref r, ref g, ref b, matrIndex, weight);
                         }
-
-                        if (sum == 0) sum = 1;
-                        r /= sum;
-                        g /= sum;
-                        b /= sum;
-
-                        if (_channelCount == 4) tmpValues[index + 3] = (byte)255;
-                        tmpValues[index + 2] = (byte)r;
-                        tmpValues[index + 1] = (byte)g;
-                        tmpValues[index + 0] = (byte)b;
+                        NormalizeValues(ref r, ref g, ref b, ref sum);
+                        WriteNewValues(tmpValues, index, r, g, b);
                     }
                 }
-                int kqq = bmpData.Height + bmpData.Width;
+
+                // проход по столбцам
                 for (int x = 0; x < bmpData.Width; ++x)
                     for (int y = 0; y < bmpData.Height; ++y)
                     {
                         int index = GetIndex(x, y, bmpData.Width);
-                        if ((index + 2 >= tmpValues.Length) || (index + 1 >= tmpValues.Length) || (index >= tmpValues.Length)) continue;
-
                         double sum = 0, r = 0, g = 0, b = 0;
                         for (int k = -_matrix[0].Length / 2; k < _matrix[0].Length / 2; ++k)
                         {
                             int i = y + k;
                             if ((i < 0) || (i >= bmpData.Height)) continue;
                             int matrIndex = GetIndex(x, i, bmpData.Width);
-
-                            if ((matrIndex + 2 >= tmpValues.Length) || (matrIndex + 1 >= tmpValues.Length) || (matrIndex >= tmpValues.Length)) continue;
-
                             double weight = _matrix[0][k + _matrix[0].Length / 2];
-                            r += tmpValues[matrIndex + 2] * weight;
-                            g += tmpValues[matrIndex + 1] * weight;
-                            b += tmpValues[matrIndex + 0] * weight;
-                            sum += weight;
+                            SumValues(tmpValues, ref sum, ref r, ref g, ref b, matrIndex, weight);
                         }
-
-                        if (sum == 0) sum = 1;
-                        r /= sum;
-                        g /= sum;
-                        b /= sum;
-
-                        if (_channelCount == 4) newValues[index + 3] = (byte)255;
-                        newValues[index + 2] = (byte)r;
-                        newValues[index + 1] = (byte)g;
-                        newValues[index + 0] = (byte)b;
+                        NormalizeValues(ref r, ref g, ref b, ref sum);
+                        WriteNewValues(newValues, index, r, g, b);
                     }
             }
 
             System.Runtime.InteropServices.Marshal.Copy(newValues, 0, ptr, bytes);
             original.UnlockBits(bmpData);
             return original;
+        }
+
+        private void WriteNewValues(byte[] newValues, int index, double r, double g, double b)
+        {
+            if (_channelCount == 4) newValues[index + 3] = (byte)255;
+            newValues[index + 2] = (byte)r;
+            newValues[index + 1] = (byte)g;
+            newValues[index + 0] = (byte)b;
+        }
+
+        private static void NormalizeValues(ref double r, ref double g, ref double b, ref double sum)
+        {
+            if (sum == 0) sum = 1;
+            r /= sum;
+            g /= sum;
+            b /= sum;
+        }
+
+        private static void SumValues(byte[] values, ref double sum, ref double r, ref double g, ref double b, int matrIndex, double weight)
+        {
+            r += values[matrIndex + 2] * weight;
+            g += values[matrIndex + 1] * weight;
+            b += values[matrIndex + 0] * weight;
+            sum += weight;
         }
 
         int GetIndex(int x, int y, int width)

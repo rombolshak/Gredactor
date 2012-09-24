@@ -101,34 +101,6 @@ namespace GredactorTest
         }
 
         [TestMethod]
-        public void TestConstructorUseSeparation()
-        {
-            processor = new FilterProcessing.FilterProcessor(new double[][] { new double[] { 1 } }, true);
-            Assert.IsTrue(processor.UseSeparation);
-        }
-
-        [TestMethod]
-        public void TestSetMatrix()
-        {
-            processor = new FilterProcessing.FilterProcessor();
-            Assert.IsFalse(processor.SetMatrix(new double[][] { }));
-            Assert.IsFalse(processor.SetMatrix(new double[][] {
-                new double[] {1,2,3},
-                new double[] {4,5,6}
-            }));
-            Assert.IsFalse(processor.SetMatrix(new double[][] {
-                new double[] {1,2,3},
-                new double[] {4,5},
-                new double[] {6,7,8,9}
-            }));
-            Assert.IsTrue(processor.SetMatrix(new double[][] {
-                new double[] {1,2,3},
-                new double[] {4,5,6},
-                new double[] {7,8,9}
-            }));
-        }
-
-        [TestMethod]
         public void TestProcessMatrix()
         {
             System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(4, 4);
