@@ -12,14 +12,14 @@ namespace Gredactor
             try
             {
                 string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                FileStream fs1 = new FileStream(path + "log.txt", FileMode.Append);
+                FileStream fs1 = new FileStream(path + "\\application.log", FileMode.Append);
                 long lenght = fs1.Length;
                 fs1.Dispose();
                 if (lenght >= 10 * 1024 * 1024)
                 {
-                    File.Move(path + "log.txt", path + "log_" + DateTime.Now.ToShortDateString() + "." + DateTime.Now.Hour + "." + DateTime.Now.Minute + "." + DateTime.Now.Second + @".old");
+                    File.Move(path + "\\application.log", path + "log_" + DateTime.Now.ToShortDateString() + "." + DateTime.Now.Hour + "." + DateTime.Now.Minute + "." + DateTime.Now.Second + @".old");
                 }
-                FileStream fs2 = new FileStream(path + "log.txt", FileMode.Append);
+                FileStream fs2 = new FileStream(path + "\\application.log", FileMode.Append);
                 StreamWriter sw = new StreamWriter(fs2);
                 sw.WriteLine("[" + DateTime.Now.ToString() + "]: " + line);
                 sw.Close();
@@ -39,7 +39,6 @@ namespace Gredactor
         [STAThread]
         static void Main()
         {
-            //GenImage();
             try
             {
                 Logger.Log("Starting");
@@ -54,30 +53,9 @@ namespace Gredactor
             }
             catch (Exception ex)
             {
+                Logger.Log(ex.Message + "\n=====================\nStack:" + ex.StackTrace + "\n====================");
                 System.Windows.Forms.MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private static void GenImage()
-        {
-            System.Drawing.Bitmap original = new System.Drawing.Bitmap(512, 512);
-            System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, original.Width, original.Height);
-            System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, original.PixelFormat);
-            IntPtr ptr = bmpData.Scan0;
-            int bytes = Math.Abs(bmpData.Stride) * bmpData.Height;
-            byte[] values = new byte[bytes];
-            System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
-            Random r = new Random();
-            for (int i = 0; i < values.Length-2; i += 3)
-            {
-                values[i + 2] = (byte)r.Next(0, 128);
-                values[i + 1] = (byte)r.Next(0, 255);
-                values[i] = (byte)r.Next(128, 255);
-            }
-
-            System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);
-            original.UnlockBits(bmpData);
-            original.Save("out.jpg");
         }
 
         static void FindPlugins()

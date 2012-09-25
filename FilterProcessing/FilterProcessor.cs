@@ -122,13 +122,14 @@ namespace FilterProcessing
 
         private void WriteNewValues(byte[] newValues, int index, double r, double g, double b)
         {
+            if (index + 2 >= newValues.Length) return;
             if (_channelCount == 4) newValues[index + 3] = (byte)255;
             newValues[index + 2] = (byte)r;
             newValues[index + 1] = (byte)g;
             newValues[index + 0] = (byte)b;
         }
 
-        private static void NormalizeValues(ref double r, ref double g, ref double b, ref double sum)
+        private void NormalizeValues(ref double r, ref double g, ref double b, ref double sum)
         {
             if (sum == 0) sum = 1;
             r /= sum;
@@ -136,8 +137,9 @@ namespace FilterProcessing
             b /= sum;
         }
 
-        private static void SumValues(byte[] values, ref double sum, ref double r, ref double g, ref double b, int matrIndex, double weight)
+        private void SumValues(byte[] values, ref double sum, ref double r, ref double g, ref double b, int matrIndex, double weight)
         {
+            if (matrIndex + 2 >= values.Length) return;
             r += values[matrIndex + 2] * weight;
             g += values[matrIndex + 1] * weight;
             b += values[matrIndex + 0] * weight;

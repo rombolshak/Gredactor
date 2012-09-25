@@ -113,7 +113,11 @@ namespace Gredactor
 
                 this.Cursor = Cursors.Default;
             }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }            
+            catch (Exception ex) 
+            {
+                Logger.Log(ex.Message + "\n=====================\nStack:" + ex.StackTrace + "\n====================");
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); 
+            }            
         }
 
         private void SetChanged()
