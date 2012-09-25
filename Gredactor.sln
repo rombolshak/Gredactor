@@ -29,6 +29,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GaussBlurEffect", "GaussBlu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedianFilter", "MedianFilter\MedianFilter.csproj", "{8C302F2E-4EB2-4BB1-9CE5-624FA4C376F2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SobelFilter", "SobelFilter\SobelFilter.csproj", "{C506EB60-1EB3-42E4-8E1A-828C05E4BF6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomFilter", "CustomFilter\CustomFilter.csproj", "{C8793F0F-21AB-4316-9123-07A561AF6C76}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Gredactor.vsmdi
@@ -132,6 +136,26 @@ Global
 		{8C302F2E-4EB2-4BB1-9CE5-624FA4C376F2}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{8C302F2E-4EB2-4BB1-9CE5-624FA4C376F2}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8C302F2E-4EB2-4BB1-9CE5-624FA4C376F2}.Release|x86.ActiveCfg = Release|Any CPU
+		{C506EB60-1EB3-42E4-8E1A-828C05E4BF6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C506EB60-1EB3-42E4-8E1A-828C05E4BF6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C506EB60-1EB3-42E4-8E1A-828C05E4BF6B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C506EB60-1EB3-42E4-8E1A-828C05E4BF6B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C506EB60-1EB3-42E4-8E1A-828C05E4BF6B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C506EB60-1EB3-42E4-8E1A-828C05E4BF6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C506EB60-1EB3-42E4-8E1A-828C05E4BF6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C506EB60-1EB3-42E4-8E1A-828C05E4BF6B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C506EB60-1EB3-42E4-8E1A-828C05E4BF6B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C506EB60-1EB3-42E4-8E1A-828C05E4BF6B}.Release|x86.ActiveCfg = Release|Any CPU
+		{C8793F0F-21AB-4316-9123-07A561AF6C76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8793F0F-21AB-4316-9123-07A561AF6C76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8793F0F-21AB-4316-9123-07A561AF6C76}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C8793F0F-21AB-4316-9123-07A561AF6C76}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C8793F0F-21AB-4316-9123-07A561AF6C76}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C8793F0F-21AB-4316-9123-07A561AF6C76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8793F0F-21AB-4316-9123-07A561AF6C76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8793F0F-21AB-4316-9123-07A561AF6C76}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C8793F0F-21AB-4316-9123-07A561AF6C76}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C8793F0F-21AB-4316-9123-07A561AF6C76}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
