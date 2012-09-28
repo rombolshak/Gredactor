@@ -65,6 +65,7 @@ namespace SobelFilter
 
             for (int i = 0; i < values.Length; i += 3)
             {
+                if (i + 2 >= values.Length) break;
                 double r = Math.Sqrt((double)valuesGx[i] * (double)valuesGx[i] + (double)valuesGy[i] * (double)valuesGy[i]);
                 values[i] = (byte)(r/Math.Sqrt(2));//(r > 300) ? (byte)255 : (byte)0;
                 values[i + 1] = (byte)(r / Math.Sqrt(2));//(r > 300) ? (byte)255 : (byte)0;

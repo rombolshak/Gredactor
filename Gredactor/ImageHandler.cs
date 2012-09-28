@@ -245,7 +245,7 @@ namespace Gredactor
                 Logger.Log("Push image to undo stack");
                 _undoStack.Push(_currentImage.Clone());
                 Logger.Log("Getting result");
-                Bitmap result = e.Apply(GetImageForEffect());
+                Bitmap result = e.Apply((Bitmap)GetImageForEffect().Clone());
                 Logger.Log("Substitute result");
                 if (_selection == null) _currentImage = result;
                 else { _selection = result; Substitute(); }

@@ -96,6 +96,7 @@ namespace Gredactor
                     effect = tuple.Item1;
                     ((ToolStripItem)sender).Tag = tuple.Item2;
                 }
+                catch { return; }
 
                 Logger.Log("Start apply effect " + effect.Name);
                 if (effect.Prepare(sender))
@@ -219,15 +220,15 @@ namespace Gredactor
             if (e.Button == MouseButtons.Left)
             {
                 isDrag = true;
+                Control control = (Control)sender;
+
+                _guiStart = control.PointToScreen(new Point(e.X, e.Y));
+                _selectionStart = e.Location;
+                ControlPaint.DrawReversibleFrame(_guiRect, Color.Black, FrameStyle.Dashed);
+                _guiRect = new Rectangle(0, 0, 0, 0);
             }
 
-            Control control = (Control)sender;
-
-            _guiStart = control.PointToScreen(new Point(e.X, e.Y));
-            _selectionStart = e.Location;
-            ControlPaint.DrawReversibleFrame(_guiRect,
-                    Color.Black, FrameStyle.Dashed);
-            _guiRect = new Rectangle(0, 0, 0, 0);
+            
         }
 
         private void Form1_MouseMove(object sender,
@@ -270,8 +271,9 @@ namespace Gredactor
             if (imHandler.Image == null) return;
             // If the MouseUp event occurs, the user is not dragging.
             isDrag = false;
-
-            imHandler.SetSelection(_selectionRect);
+            if (_selectionStart != e.Location)
+                imHandler.SetSelection(_selectionRect);
+            else imHandler.ResetSelection();
         }
 
         #endregion

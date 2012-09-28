@@ -26,6 +26,7 @@ namespace GaussBlurEffect
 
         public bool Prepare(object obj)
         {
+            _sigma = 0;
             form = new GaussEffectForm();
             form.button2.Click += new EventHandler(OK_Click);
             form.ShowDialog();

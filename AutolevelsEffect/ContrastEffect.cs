@@ -56,6 +56,7 @@ namespace ContrastEffect
                 byte[] rValues = new byte[256], gValues = new byte[256], bValues = new byte[256];
                 for (int i = 0; i < values.Length - 1; i += 3)
                 {
+                    if (i + 2 >= values.Length) break;
                     ++rValues[values[i + 2]];
                     ++gValues[values[i + 1]];
                     ++bValues[values[i + 0]];
@@ -70,6 +71,7 @@ namespace ContrastEffect
                 // делаем линейный сдвиг и радуемся
                 for (int i = 0; i < values.Length - 1; i += 3)
                 {
+                    if (i + 2 >= values.Length) break;
                     values[i + 2] = CalculateNewValue(values[i + 2], rMin, rMax);
                     values[i + 1] = CalculateNewValue(values[i + 1], gMin, gMax);
                     values[i + 0] = CalculateNewValue(values[i + 0], bMin, bMax);
@@ -103,6 +105,7 @@ namespace ContrastEffect
             byte[] rgb = new byte[hsv.Length];
             for (int i = 0; i < hsv.Length - 1; i += 3)
             {
+                if (i + 2 >= hsv.Length) break;
                 Color c = ColorFromHSV(hsv[i+0], hsv[i + 1], hsv[i + 2]);
                 rgb[i + 2] = c.R;
                 rgb[i + 1] = c.G;
@@ -121,6 +124,7 @@ namespace ContrastEffect
             double[] hsv = new double[values.Length];
             for (int i = 0; i < values.Length - 1; i += 3)
             {
+                if (i + 2 >= hsv.Length) break;
                 double hue, saturation, value;
                 ColorToHSV(Color.FromArgb(values[i + 2], values[i + 1], values[i+0]), out hue, out saturation, out value);
                 hsv[i + 0] = hue;

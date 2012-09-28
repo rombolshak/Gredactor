@@ -35,8 +35,9 @@ namespace GrayworldEffect
             System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
 
             float rAvg = 0, gAvg = 0, bAvg = 0; int N = 0;
-            for (int i = 0; i < values.Length - 1; i += 3)
+            for (int i = 0; i < values.Length; i += 3)
             {
+                if (i + 2 >= values.Length) break;
                 N += 1;
                 rAvg += values[i + 2];
                 gAvg += values[i + 1];
@@ -51,8 +52,9 @@ namespace GrayworldEffect
             float gCoef = avg / gAvg;
             float bCoef = avg / bAvg;
 
-            for (int i = 0; i < values.Length - 1; i += 3)
+            for (int i = 0; i < values.Length; i += 3)
             {
+                if (i + 2 >= values.Length) break;
                 int newR = (int)((float)values[i + 2] * rCoef);
                 int newG = (int)((float)values[i + 1] * gCoef);
                 int newB = (int)((float)values[i + 0] * gCoef);
