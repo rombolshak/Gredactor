@@ -43,6 +43,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomFilter.cs" />
+    <Compile Include="CustomFilterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CustomFilterForm.Designer.cs">
+      <DependentUpon>CustomFilterForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -54,6 +60,11 @@
       <Project>{487B127C-C578-4953-8470-83DAA300ADA8}</Project>
       <Name>Gredactor</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="CustomFilterForm.resx">
+      <DependentUpon>CustomFilterForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
