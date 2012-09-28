@@ -98,7 +98,7 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button2;
-        public System.Windows.Forms.TextBox textBox1;
-        public System.Windows.Forms.Button button1;
+        internal System.Windows.Forms.TextBox textBox1;
+        internal System.Windows.Forms.Button button1;
     }
 }
