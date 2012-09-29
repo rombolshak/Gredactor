@@ -37,7 +37,7 @@ namespace ColorChannelEffect
         {
             if (color == Colors.None) return original;
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
-            System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, original.PixelFormat);
+            System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             IntPtr ptr = bmpData.Scan0;
             int bytes = Math.Abs(bmpData.Stride) * bmpData.Height;
             byte[] values = new byte[bytes];

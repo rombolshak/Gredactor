@@ -42,21 +42,21 @@ namespace SobelFilter
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
 
             #region Initialization
-            System.Drawing.Imaging.BitmapData bmpDataX = Gx.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, Gx.PixelFormat);
+            System.Drawing.Imaging.BitmapData bmpDataX = Gx.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             IntPtr ptrX = bmpDataX.Scan0;
             int bytesX = Math.Abs(bmpDataX.Stride) * bmpDataX.Height;
             byte[] valuesGx = new byte[bytesX];
             System.Runtime.InteropServices.Marshal.Copy(ptrX, valuesGx, 0, bytesX);
             Gx.UnlockBits(bmpDataX);
 
-            System.Drawing.Imaging.BitmapData bmpDataY = Gy.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, Gy.PixelFormat);
+            System.Drawing.Imaging.BitmapData bmpDataY = Gy.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             IntPtr ptrY = bmpDataY.Scan0;
             int bytesY = Math.Abs(bmpDataY.Stride) * bmpDataY.Height;
             byte[] valuesGy = new byte[bytesY];
             System.Runtime.InteropServices.Marshal.Copy(ptrY, valuesGy, 0, bytesY);
             Gy.UnlockBits(bmpDataY);
 
-            System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.WriteOnly, original.PixelFormat);
+            System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             IntPtr ptr = bmpData.Scan0;
             int bytes = Math.Abs(bmpData.Stride) * bmpData.Height;
             byte[] values = new byte[bytes];

@@ -25,6 +25,7 @@ namespace Gredactor
         {
             Logger.Log("Image changed");
             pictureBox.Image = imHandler.Image;
+            pictureBox.Size = imHandler.Image.Size;
             undoToolStripMenuItem.Enabled = imHandler.CanUndo;
             if (imHandler.CanUndo) SetChanged();
             else SetNotChanged();
