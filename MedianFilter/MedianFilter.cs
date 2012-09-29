@@ -12,6 +12,12 @@ namespace MedianFilter
     {
         private int _radius;
 
+        public int Radius
+        {
+            get { return _radius; }
+            set { _radius = value; }
+        }
+
         public string Name
         {
             get { return "Медианный фильтр"; }

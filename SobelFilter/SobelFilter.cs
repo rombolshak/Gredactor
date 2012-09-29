@@ -11,6 +11,7 @@ namespace SobelFilter
 {
     public class SobelFilter : IEffect
     {
+        public bool notGray = false;
         public string Name
         {
             get { return "Оператор Собеля"; }
@@ -29,7 +30,7 @@ namespace SobelFilter
         public Bitmap Apply(Bitmap original)
         {
             GrayscaleEffect.Grasycale gray = new GrayscaleEffect.Grasycale();
-            original = gray.Apply(original);
+            if (!notGray) original = gray.Apply(original);
 
             FilterProcessor processor = new FilterProcessor();
 
@@ -66,10 +67,12 @@ namespace SobelFilter
             for (int i = 0; i < values.Length; i += 3)
             {
                 if (i + 2 >= values.Length) break;
-                double r = Math.Sqrt((double)valuesGx[i] * (double)valuesGx[i] + (double)valuesGy[i] * (double)valuesGy[i]);
-                values[i] = (byte)(r/Math.Sqrt(2));//(r > 300) ? (byte)255 : (byte)0;
-                values[i + 1] = (byte)(r / Math.Sqrt(2));//(r > 300) ? (byte)255 : (byte)0;
-                values[i + 2] = (byte)(r / Math.Sqrt(2));//(r > 300) ? (byte)255 : (byte)0;
+                double r = Math.Sqrt((double)valuesGx[i + 2] * (double)valuesGx[i + 2] + (double)valuesGy[i + 2] * (double)valuesGy[i + 2]);
+                double g = Math.Sqrt((double)valuesGx[i + 1] * (double)valuesGx[i + 1] + (double)valuesGy[i + 1] * (double)valuesGy[i + 1]);
+                double b = Math.Sqrt((double)valuesGx[i + 0] * (double)valuesGx[i + 0] + (double)valuesGy[i + 0] * (double)valuesGy[i + 0]);
+                values[i + 0] = (byte)(r / Math.Sqrt(2));
+                values[i + 1] = (byte)(g / Math.Sqrt(2));
+                values[i + 2] = (byte)(b / Math.Sqrt(2));
             }
 
             #region Disposing

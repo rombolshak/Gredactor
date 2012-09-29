@@ -9,6 +9,11 @@ namespace GaussBlurEffect
 {
     public class GaussBlurEffect : IEffect
     {
+        public double Sigma
+        {
+            get { return _sigma; }
+            set { _sigma = value; }
+        }
         public string Name
         {
             get { return "Фильтр Гаусса"; }
@@ -30,9 +35,7 @@ namespace GaussBlurEffect
             form = new GaussEffectForm();
             form.button2.Click += new EventHandler(OK_Click);
             form.ShowDialog();
-            if (_sigma == 0) return false;
-            CalculateMatrix();
-            return true;
+            return _sigma != 0;
         }
 
         private void CalculateMatrix()
@@ -53,6 +56,7 @@ namespace GaussBlurEffect
 
         public System.Drawing.Bitmap Apply(System.Drawing.Bitmap original)
         {
+            CalculateMatrix();
             FilterProcessor processor = new FilterProcessor(_matrix, true);
             return processor.Process(original);
         }
