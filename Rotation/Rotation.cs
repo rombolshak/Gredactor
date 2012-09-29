@@ -8,6 +8,7 @@ using System.Windows.Forms;
 
 namespace Rotation
 {
+    enum Colors { Red = 2, Green = 1, Blue = 0 }
     public class Rotation : IEffect
     {
         double _angle;
@@ -57,22 +58,57 @@ namespace Rotation
                     double r = Math.Sqrt(Math.Pow(x - center.X, 2) + Math.Pow(h, 2));
                     double alpha = Math.Atan2(y - center.Y, x - center.X);
 
-                    int fromX = (int)Math.Round(center.X + r * Math.Cos(alpha + _angle));
-                    int fromY = (int)Math.Round(center.Y + r * Math.Sin(alpha + _angle));
+                    double fromX = (center.X + r * Math.Cos(alpha + _angle));
+                    double fromY = (center.Y + r * Math.Sin(alpha + _angle));
 
                     int index = (y * bmpData.Width + x) * 3;
-                    int fromIndex = (fromY * bmpData.Width + fromX) * 3;
-                    bool inBounds = InBounds(fromX, fromY, bmpData.Width, bmpData.Height);
+                    //int fromIndex = (fromY * bmpData.Width + fromX) * 3;
+                    //bool inBounds = InBounds(fromX, fromY, bmpData.Width, bmpData.Height);
 
                     if (index + 2 >= values.Length) break;
-                    newValues[index + 2] = inBounds ? values[fromIndex + 2] : (byte)0;
-                    newValues[index + 1] = inBounds ? values[fromIndex + 1] : (byte)0;
-                    newValues[index + 0] = inBounds ? values[fromIndex + 0] : (byte)0;
+                    newValues[index + 2] = Interpolate(values, fromX, fromY, Colors.Red, bmpData.Width, bmpData.Height);
+                    newValues[index + 1] = Interpolate(values, fromX, fromY, Colors.Green, bmpData.Width, bmpData.Height);
+                    newValues[index + 0] = Interpolate(values, fromX, fromY, Colors.Blue, bmpData.Width, bmpData.Height);
                 }
 
             System.Runtime.InteropServices.Marshal.Copy(newValues, 0, ptr, bytes);
             original.UnlockBits(bmpData);
             return original;
+        }
+
+        private byte Interpolate(byte[] values, double x, double y, Colors color, int width, int height)
+        {
+            int x1 = (int)Math.Floor(x), x2 = (int)Math.Ceiling(x);
+            int y1 = (int)Math.Floor(y), y2 = (int)Math.Ceiling(y);
+            //if (!InBounds(x, y, width, height)) return (byte)0;
+
+            double q1 = (InBounds(x1, y1, width, height)) ? values[((y1) * width + (x1)) * 3 + (int)color] : 0;
+            double q2 = (InBounds(x2, y1, width, height)) ? values[((y1) * width + (x2)) * 3 + (int)color] : 0;
+            double q3 = (InBounds(x1, y2, width, height)) ? values[((y2) * width + (x1)) * 3 + (int)color] : 0;
+            double q4 = (InBounds(x2, y2, width, height)) ? values[((y2) * width + (x2)) * 3 + (int)color] : 0;
+
+            double p = 0;
+            if (x1 == x2)
+                if (y1 == y2)
+                    p = q1;
+                else
+                    p = q1 * (y2 - y) / (y2 - y1) + q3 * (y - y1) / (y2 - y1);
+            else if (y1 == y2)
+                p = q1 * (x2 - x) / (x2 - x1) + q2 * (x - x1) / (x2 - x1);
+            else
+            {
+                double del = (x2 - x1) * (y2 - y1);
+                p =
+                    q1 * (x2 - x) * (y2 - y) / del +
+                    q2 * (x - x1) * (y2 - y) / del +
+                    q3 * (x2 - x) * (y - y1) / del +
+                    q4 * (x - x1) * (y - y1) / del;
+            }
+
+            if (p > 255) p = 255;
+            if (p < 0) p = 0;
+
+            return (byte)p;
         }
 
         bool InBounds(int x, int y, int width, int height)
