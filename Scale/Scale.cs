@@ -23,10 +23,20 @@ namespace Scale
             get { return "Увеличивает или уменьшает изображение"; }
         }
 
+        ScaleForm form;
         public bool Prepare(object obj)
         {
-            _scale = 1.5;
+            _scale = 0;
+            form = new ScaleForm();
+            form.button1.Click += new EventHandler(OK_Click);
+            form.ShowDialog();
             return _scale != 0;
+        }
+
+        void OK_Click(object sender, EventArgs e)
+        {
+            _scale = (double)form.numericUpDown1.Value;
+            form.Close();
         }
 
         public Bitmap Apply(Bitmap original)
