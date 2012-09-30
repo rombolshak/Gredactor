@@ -17,10 +17,10 @@ namespace GrayworldEffect
 
         public string Description
         {
-            get { return ""; }
+            get { return "Серый мир"; }
         }
 
-        public bool Prepare(object obj)
+        public bool Prepare(object obj, bool console = false)
         {
             return true;
         }
@@ -73,24 +73,35 @@ namespace GrayworldEffect
             get { return "Контрастность"; }
         }
 
-        public ToolStripMenuItem[] MenuItems
+        public ToolStripMenuItem MenuItem
         {
-            get { return new ToolStripMenuItem[] { new ToolStripMenuItem(this.Name) }; }
+            get
+            {
+                return new ToolStripMenuItem(this.Name);
+            }
         }
 
-        public Button[] Buttons
+        public Button Button
         {
-            get { Button b = new Button(); b.Text = this.Name; return new Button[] { b }; }
+            get
+            {
+                Button b = new Button(); b.Text = this.Name; return b;
+            }
         }
 
-        public char[] ShortConsoleKey
+        public char ShortConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return 'a'; }
         }
 
-        public string[] LongConsoleKey
+        public string LongConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return "grayworld"; }
+        }
+
+        public string ConsoleParams
+        {
+            get { return ""; }
         }
     }
 }

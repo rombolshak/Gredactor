@@ -21,17 +21,21 @@ namespace CustomFilter
 
         public string Description
         {
-            get { return ""; }
+            get { return "Произвольный фильтр"; }
         }
 
         CustomFilterForm form;
-        public bool Prepare(object obj)
+        public bool Prepare(object obj, bool console = false)
         {
             if (!CheckDependences()) return false;
             _strmatrix = "";
-            form = new CustomFilterForm();
-            form.button1.Click += new EventHandler(OK_Click);
-            form.ShowDialog();
+            if (!console)
+            {
+                form = new CustomFilterForm();
+                form.button1.Click += new EventHandler(OK_Click);
+                form.ShowDialog();
+            }
+            else _strmatrix = (string)obj;
             if (_strmatrix == "") return false;
             if (!CreateMatrix(_strmatrix, out _matrix))
             {
@@ -100,13 +104,37 @@ namespace CustomFilter
             get { return "Фильтры"; }
         }
 
-        public ToolStripMenuItem[] MenuItems
+        public ToolStripMenuItem MenuItem
         {
             get 
             {
-                if (!CheckDependences()) return new ToolStripMenuItem[] { };
-                return new ToolStripMenuItem[] { new ToolStripMenuItem(this.Name) }; 
+                if (!CheckDependences()) return null;
+                return new ToolStripMenuItem(this.Name); 
             }
+        }
+
+        public Button Button
+        {
+            get 
+            {
+                if (!CheckDependences()) return null;
+                Button b = new Button(); b.Text = this.Name; return b; 
+            }
+        }
+
+        public char ShortConsoleKey
+        {
+            get { return 'k'; }
+        }
+
+        public string LongConsoleKey
+        {
+            get { return "custom"; }
+        }
+
+        public string ConsoleParams
+        {
+            get { return "<kernel>"; }
         }
 
         private bool CheckDependences()
@@ -115,19 +143,6 @@ namespace CustomFilter
             catch { return false; }
         }
 
-        public Button[] Buttons
-        {
-            get { return new Button[] { }; }
-        }
-
-        public char[] ShortConsoleKey
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public string[] LongConsoleKey
-        {
-            get { throw new NotImplementedException(); }
-        }
+        
     }
 }

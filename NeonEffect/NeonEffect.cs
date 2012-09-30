@@ -21,7 +21,7 @@ namespace NeonEffect
             get { return "Декоративный фильтр"; }
         }
 
-        public bool Prepare(object obj)
+        public bool Prepare(object obj, bool console = false)
         {
             if (!CheckDependencies()) return false;
             return true;
@@ -84,32 +84,37 @@ namespace NeonEffect
             get { return "Фильтры"; }
         }
 
-        public ToolStripMenuItem[] MenuItems
+        public ToolStripMenuItem MenuItem
         {
             get
             {
-                if (!CheckDependencies()) return new ToolStripMenuItem[] { };
-                return new ToolStripMenuItem[] { new ToolStripMenuItem(this.Name) }; 
+                if (!CheckDependencies()) return null;
+                return new ToolStripMenuItem(this.Name);
             }
         }
 
-        public Button[] Buttons
+        public Button Button
         {
             get
             {
-                if (!CheckDependencies()) return new Button[] { };
-                Button b = new Button(); b.Text = this.Name; return new Button[] { b }; 
+                if (!CheckDependencies()) return null;
+                Button b = new Button(); b.Text = this.Name; return b;
             }
         }
 
-        public char[] ShortConsoleKey
+        public char ShortConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return 'n'; }
         }
 
-        public string[] LongConsoleKey
+        public string LongConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return "neon"; }
+        }
+
+        public string ConsoleParams
+        {
+            get { return ""; }
         }
     }
 }

@@ -12,13 +12,14 @@ namespace Gredactor
         string Name { get; }
         string Description { get; }
 
-        bool Prepare(object obj);
+        bool Prepare(object obj, bool console = true);
         Bitmap Apply(Bitmap original);
 
         string MenuGroup { get; }
-        ToolStripMenuItem[] MenuItems { get; }
-        Button[] Buttons { get; }
-        char[] ShortConsoleKey { get; }
-        string[] LongConsoleKey { get; }
+        ToolStripMenuItem MenuItem { get; }
+        Button Button { get; }
+        char ShortConsoleKey { get; }
+        string LongConsoleKey { get; }
+        string ConsoleParams { get; }
     }
 }

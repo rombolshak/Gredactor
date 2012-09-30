@@ -8,41 +8,80 @@ using System.Windows.Forms;
 
 namespace ContrastEffect
 {
-    public class ContrastEffect : IEffect
+    class Helper
     {
-        enum Operation { None, Autocontrast, Autolevels };
-        Operation operation = Operation.None;
+        /// <summary>
+        /// Не совсем линейное растяжение, здесь используется нормализация гистограммы. Выкидывается по меньшей мере 5% изображения с обоих концов гистограммы (самые темные и самые светлые)
+        /// </summary>
+        /// <param name="cValues"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        public static void FindMaxMin(byte[] cValues, out int min, out int max)
+        {
+            uint length = 0; for (byte i = 0; i < 255; ++i) length += cValues[i + 0]; // общее число элементов
+
+            double sum = 0; int pos = 0;
+            while (sum / length < .05) // откидываем 5% слева
+                sum += cValues[pos++];
+            min = pos;
+
+            sum = 0; pos = 255;
+            while (sum / length < .05) // откидываем 5% справа
+                sum += cValues[pos--];
+            max = pos;
+        }
+
+        /// <summary>
+        /// Линейный сдвиг, основываясь на концах растягиваемого отрезка
+        /// </summary>
+        /// <param name="old"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static byte CalculateNewValue(byte old, int min, int max)
+        {
+            double res = (double)(old - min) / (max - min) * 255;
+            if (res < 0) res = 0; if (res > 255) res = 255;
+            return (byte)res;
+        }
+    }
+
+    public class AutoContrastEffect : IEffect
+    {
+        //enum Operation { None, Autocontrast, Autolevels };
+        //Operation operation = Operation.None;
         public string Name
         {
-            get { return "Contrast"; }
+            get { return "Автоконтраст"; }
         }
 
         public string Description
         {
-            get { return "Поканальное и линейное растяжение гистограммы яркости"; }
+            get { return "Линейное растяжение гистограммы яркости"; }
         }
 
-        public bool Prepare(object obj)
+        public bool Prepare(object obj, bool console = false)
         {
-            try
-            {
-                operation = (Operation)((Button)obj).Tag;
-                return true;
-            }
-            catch (InvalidCastException)
-            {
-                operation = (Operation)((ToolStripMenuItem)obj).Tag;
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return true;
+            //try
+            //{
+            //    operation = (Operation)((Button)obj).Tag;
+            //    return true;
+            //}
+            //catch (InvalidCastException)
+            //{
+            //    operation = (Operation)((ToolStripMenuItem)obj).Tag;
+            //    return true;
+            //}
+            //catch
+            //{
+            //    return false;
+            //}
         }
 
         public Bitmap Apply(Bitmap original)
         {
-            if (operation == Operation.None) return original;
+            //if (operation == Operation.None) return original;
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             IntPtr ptr = bmpData.Scan0;
@@ -50,43 +89,17 @@ namespace ContrastEffect
             byte[] values = new byte[bytes];
             System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
             
-            if (operation == Operation.Autolevels)
-            {
-                // строим гистограмму яркости
-                byte[] rValues = new byte[256], gValues = new byte[256], bValues = new byte[256];
-                for (int i = 0; i < values.Length - 1; i += 3)
-                {
-                    if (i + 2 >= values.Length) break;
-                    ++rValues[values[i + 2]];
-                    ++gValues[values[i + 1]];
-                    ++bValues[values[i + 0]];
-                }
-
-                // находим максимум и минимум, откуда будем растягивать для каждого канала
-                int rMin, rMax, gMin, gMax, bMin, bMax;
-                FindMaxMin(rValues, out rMin, out rMax);
-                FindMaxMin(gValues, out gMin, out gMax);
-                FindMaxMin(bValues, out bMin, out bMax);
-
-                // делаем линейный сдвиг и радуемся
-                for (int i = 0; i < values.Length - 1; i += 3)
-                {
-                    if (i + 2 >= values.Length) break;
-                    values[i + 2] = CalculateNewValue(values[i + 2], rMin, rMax);
-                    values[i + 1] = CalculateNewValue(values[i + 1], gMin, gMax);
-                    values[i + 0] = CalculateNewValue(values[i + 0], bMin, bMax);
-                }
-            }
-            else // Autocontrast
+            
+            //else // Autocontrast
             {
                 byte[] cValues = new byte[256];
                 double[] hsv = RGB2HSV(values); // переводим в HSV
                 for (int i = 2; i < hsv.Length - 1; i += 3)
                     ++cValues[Convert.ToInt32(hsv[i+0] * 255)]; // гистограмма. В HSV яркость представлена от 0 до 1, поэтому здесь линейно растягиваем на [0; 255]
                 int cMin, cMax;
-                FindMaxMin(cValues, out cMin, out cMax); 
+                Helper.FindMaxMin(cValues, out cMin, out cMax); 
                 for (int i = 2; i < hsv.Length - 1; i += 3)
-                    hsv[i+0] = CalculateNewValue((byte)(hsv[i+0] * 255), cMin, cMax) / 255d;
+                    hsv[i+0] = Helper.CalculateNewValue((byte)(hsv[i+0] * 255), cMin, cMax) / 255d;
                 values = HSV2RGB(hsv);
             }            
 
@@ -176,39 +189,101 @@ namespace ContrastEffect
                 return Color.FromArgb(255, v, p, q);
         }
 
-        /// <summary>
-        /// Линейный сдвиг, основываясь на концах растягиваемого отрезка
-        /// </summary>
-        /// <param name="old"></param>
-        /// <param name="min"></param>
-        /// <param name="max"></param>
-        /// <returns></returns>
-        byte CalculateNewValue(byte old, int min, int max)
+        public string MenuGroup
         {
-            double res = (double)(old - min) / (max - min) * 255;
-            if (res < 0) res = 0; if (res > 255) res = 255;
-            return (byte)res;
+            get { return "Контрастность"; }
         }
 
-        /// <summary>
-        /// Не совсем линейное растяжение, здесь используется нормализация гистограммы. Выкидывается по меньшей мере 5% изображения с обоих концов гистограммы (самые темные и самые светлые)
-        /// </summary>
-        /// <param name="cValues"></param>
-        /// <param name="min"></param>
-        /// <param name="max"></param>
-        private void FindMaxMin(byte[] cValues, out int min, out int max)
+        public ToolStripMenuItem MenuItem
         {
-            uint length = 0; for (byte i = 0; i < 255; ++i) length += cValues[i+0]; // общее число элементов
-            
-            double sum = 0; int pos = 0;
-            while (sum / length < .05) // откидываем 5% слева
-                sum += cValues[pos++];
-            min = pos;
+            get
+            {
+                return new ToolStripMenuItem(this.Name);
+            }
+        }
 
-            sum = 0; pos = 255;
-            while (sum / length < .05) // откидываем 5% справа
-                sum += cValues[pos--];
-            max = pos;
+        public Button Button
+        {
+            get {
+                Button b1 = new Button();
+                b1.Text = "Автоконтраст";
+                return b1;
+            }
+        }
+
+        public char ShortConsoleKey
+        {
+            get { return 'c'; }
+        }
+
+        public string LongConsoleKey
+        {
+            get { return "autocontrast"; }
+        }
+
+        public string ConsoleParams
+        {
+            get { return ""; }
+        }
+    }
+
+    public class AutoLevelsEffect : IEffect
+    {
+
+        public string Name
+        {
+            get { return "Autolevels"; }
+        }
+
+        public string Description
+        {
+            get { return "Поканальное растяжение яркости"; }
+        }
+
+        public bool Prepare(object obj, bool console = false)
+        {
+            return true;
+        }
+
+        public Bitmap Apply(Bitmap original)
+        {
+            Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
+            System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            IntPtr ptr = bmpData.Scan0;
+            int bytes = Math.Abs(bmpData.Stride) * bmpData.Height;
+            byte[] values = new byte[bytes];
+            System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
+
+            //if (operation == Operation.Autolevels)
+            {
+                // строим гистограмму яркости
+                byte[] rValues = new byte[256], gValues = new byte[256], bValues = new byte[256];
+                for (int i = 0; i < values.Length - 1; i += 3)
+                {
+                    if (i + 2 >= values.Length) break;
+                    ++rValues[values[i + 2]];
+                    ++gValues[values[i + 1]];
+                    ++bValues[values[i + 0]];
+                }
+
+                // находим максимум и минимум, откуда будем растягивать для каждого канала
+                int rMin, rMax, gMin, gMax, bMin, bMax;
+                Helper.FindMaxMin(rValues, out rMin, out rMax);
+                Helper.FindMaxMin(gValues, out gMin, out gMax);
+                Helper.FindMaxMin(bValues, out bMin, out bMax);
+
+                // делаем линейный сдвиг и радуемся
+                for (int i = 0; i < values.Length - 1; i += 3)
+                {
+                    if (i + 2 >= values.Length) break;
+                    values[i + 2] = Helper.CalculateNewValue(values[i + 2], rMin, rMax);
+                    values[i + 1] = Helper.CalculateNewValue(values[i + 1], gMin, gMax);
+                    values[i + 0] = Helper.CalculateNewValue(values[i + 0], bMin, bMax);
+                }
+            }
+            System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);
+            original.UnlockBits(bmpData);
+            return original;
         }
 
         public string MenuGroup
@@ -216,35 +291,29 @@ namespace ContrastEffect
             get { return "Контрастность"; }
         }
 
-        public ToolStripMenuItem[] MenuItems
+        public ToolStripMenuItem MenuItem
         {
-            get
-            {
-                ToolStripMenuItem b1 = new ToolStripMenuItem(), b2 = new ToolStripMenuItem();
-                b1.Text = "Автоконтраст"; b2.Text = "Autolevels";// не знаю, как правильнее перевести Autolevels :(
-                b1.Tag = Operation.Autocontrast; b2.Tag = Operation.Autolevels;
-                return new ToolStripMenuItem[] { b1, b2 };
-            }
+            get { return new ToolStripMenuItem(this.Name); }
         }
 
-        public Button[] Buttons
+        public Button Button
         {
-            get {
-                Button b1 = new Button(), b2 = new Button();
-                b1.Text = "Автоконтраст"; b2.Text = "Autolevels";
-                b1.Tag = Operation.Autocontrast; b2.Tag = Operation.Autolevels;
-                return new Button[] {b1, b2};
-            }
+            get { Button b = new Button(); b.Text = this.Name; return b; }
         }
 
-        public char[] ShortConsoleKey
+        public char ShortConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return 'l'; }
         }
 
-        public string[] LongConsoleKey
+        public string LongConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return "autolevels"; }
+        }
+
+        public string ConsoleParams
+        {
+            get { return ""; }
         }
     }
 }

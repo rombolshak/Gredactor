@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Gredactor;
 using System.Drawing;
 
+// [Disactivated]
 namespace ColorChannelEffect
 {
     public class ColorChannelEffect : IEffect
@@ -23,7 +24,7 @@ namespace ColorChannelEffect
             get { return "Оставляет какой-либо один из трех цветовых каналов"; }
         }
 
-        public bool Prepare(object obj)
+        public bool Prepare(object obj, bool console = false)
         {
             try
             {
@@ -73,44 +74,50 @@ namespace ColorChannelEffect
             get { return ""; }
         }
 
-        public System.Windows.Forms.ToolStripMenuItem[] MenuItems
+        public System.Windows.Forms.ToolStripMenuItem MenuItem
         {
             get { return null; }
         }
 
-        public Button[] Buttons
+        public Button Button
         {
-            get
-            {
-                Button[] arr = new Button[3];
+            get { return null; }
+            //get
+            //{
+            //    Button[] arr = new Button[3];
 
-                Button b = new Button();
-                b.Text = "Красный";
-                b.Tag = Colors.Red;
-                arr[0] = b;
+            //    Button b = new Button();
+            //    b.Text = "Красный";
+            //    b.Tag = Colors.Red;
+            //    arr[0] = b;
 
-                b = new Button();
-                b.Text = "Зеленый";
-                b.Tag = Colors.Green;
-                arr[1] = b;
+            //    b = new Button();
+            //    b.Text = "Зеленый";
+            //    b.Tag = Colors.Green;
+            //    arr[1] = b;
 
-                b = new Button();
-                b.Text = "Синий";
-                b.Tag = Colors.Blue;
-                arr[2] = b;
+            //    b = new Button();
+            //    b.Text = "Синий";
+            //    b.Tag = Colors.Blue;
+            //    arr[2] = b;
 
-                return arr;
-            }
+            //    return arr;
+            //}
         }
 
-        public char[] ShortConsoleKey
+        public char ShortConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return ' '; }
         }
 
-        public string[] LongConsoleKey
+        public string LongConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return "channel"; }
+        }
+
+        public string ConsoleParams
+        {
+            get { return "<red|green|blue>"; }
         }
     }
 }

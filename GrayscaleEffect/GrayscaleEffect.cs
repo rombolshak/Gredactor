@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace GrayscaleEffect
 {
@@ -18,7 +19,7 @@ namespace GrayscaleEffect
             get { return "Оттенки серого"; }
         }
 
-        public bool Prepare(object obj)
+        public bool Prepare(object obj, bool console = false)
         {
             return true;
         }
@@ -70,37 +71,35 @@ namespace GrayscaleEffect
             get { return "Фильтры"; }
         }
 
-        public System.Windows.Forms.ToolStripMenuItem[] MenuItems
+        public ToolStripMenuItem MenuItem
         {
-            get 
+            get
             {
-                System.Windows.Forms.ToolStripMenuItem item = new System.Windows.Forms.ToolStripMenuItem();
-                item.Text = this.Name;
-                item.Name = "grayscaleMenuItem";
-                return new System.Windows.Forms.ToolStripMenuItem[] { item };
+                return new ToolStripMenuItem(this.Name);
             }
         }
 
-        public System.Windows.Forms.Button[] Buttons
+        public Button Button
         {
-            get 
+            get
             {
-                System.Windows.Forms.Button[] arr = new System.Windows.Forms.Button[1];
-                System.Windows.Forms.Button b = new System.Windows.Forms.Button();
-                b.Text = this.Name;
-                arr[0] = b;
-                return arr;
+                Button b = new Button(); b.Text = this.Name; return b;
             }
         }
 
-        public char[] ShortConsoleKey
+        public char ShortConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return 'y'; }
         }
 
-        public string[] LongConsoleKey
+        public string LongConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return "grayscale"; }
+        }
+
+        public string ConsoleParams
+        {
+            get { return ""; }
         }
     }
 }

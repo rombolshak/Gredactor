@@ -24,12 +24,17 @@ namespace Scale
         }
 
         ScaleForm form;
-        public bool Prepare(object obj)
+        public bool Prepare(object obj, bool console = false)
         {
             _scale = 0;
-            form = new ScaleForm();
-            form.button1.Click += new EventHandler(OK_Click);
-            form.ShowDialog();
+            if (!console)
+            {
+                form = new ScaleForm();
+                form.button1.Click += new EventHandler(OK_Click);
+                form.ShowDialog();                
+            }
+            else
+                _scale = Int32.Parse((string)obj);
             return _scale != 0;
         }
 
@@ -125,24 +130,35 @@ namespace Scale
             get { return "Геометрия"; }
         }
 
-        public ToolStripMenuItem[] MenuItems
+        public ToolStripMenuItem MenuItem
         {
-            get { return new ToolStripMenuItem[] { new ToolStripMenuItem(this.Name) }; }
+            get
+            {
+                return new ToolStripMenuItem(this.Name);
+            }
         }
 
-        public Button[] Buttons
+        public Button Button
         {
-            get { Button b = new Button(); b.Text = this.Name; return new Button[] { b }; }
+            get
+            {
+                Button b = new Button(); b.Text = this.Name; return b;
+            }
         }
 
-        public char[] ShortConsoleKey
+        public char ShortConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return 'z'; }
         }
 
-        public string[] LongConsoleKey
+        public string LongConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return "resize"; }
+        }
+
+        public string ConsoleParams
+        {
+            get { return "<scale>"; }
         }
     }
 }

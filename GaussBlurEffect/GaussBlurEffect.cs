@@ -22,7 +22,7 @@ namespace GaussBlurEffect
 
         public string Description
         {
-            get { return ""; }
+            get { return "Фильтр Гаусса"; }
         }
 
 
@@ -30,13 +30,17 @@ namespace GaussBlurEffect
         double[][] _matrix;
         GaussEffectForm form;
 
-        public bool Prepare(object obj)
+        public bool Prepare(object obj, bool console = false)
         {
             if (!CheckDependencies()) return false;
             _sigma = 0;
-            form = new GaussEffectForm();
-            form.button2.Click += new EventHandler(OK_Click);
-            form.ShowDialog();
+            if (!console)
+            {
+                form = new GaussEffectForm();
+                form.button2.Click += new EventHandler(OK_Click);
+                form.ShowDialog();
+            }
+            else _sigma = Int32.Parse((string)obj);
             return _sigma != 0;
         }
 
@@ -74,32 +78,37 @@ namespace GaussBlurEffect
             get { return "Фильтры"; }
         }
 
-        public System.Windows.Forms.ToolStripMenuItem[] MenuItems
+        public ToolStripMenuItem MenuItem
         {
-            get 
+            get
             {
-                if (!CheckDependencies()) return new System.Windows.Forms.ToolStripMenuItem[] { };
-                return new System.Windows.Forms.ToolStripMenuItem[] { new System.Windows.Forms.ToolStripMenuItem(this.Name) }; 
+                if (!CheckDependencies()) return null;
+                return new ToolStripMenuItem(this.Name);
             }
         }
 
-        public System.Windows.Forms.Button[] Buttons
+        public Button Button
         {
-            get 
+            get
             {
-                if (!CheckDependencies()) return new Button[] { };
-                Button b = new Button(); b.Text = this.Name; return new Button[] { b }; 
+                if (!CheckDependencies()) return null;
+                Button b = new Button(); b.Text = this.Name; return b;
             }
         }
 
-        public char[] ShortConsoleKey
+        public char ShortConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return 'g'; }
         }
 
-        public string[] LongConsoleKey
+        public string LongConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return "gaussian"; }
+        }
+
+        public string ConsoleParams
+        {
+            get { return "<sigma>"; }
         }
     }
 }

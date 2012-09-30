@@ -36,23 +36,21 @@ namespace Gredactor
             int x = 6, y = 19;
             foreach (IEffect effect in Gredactor.plugins)
             {
-                foreach (Button btn in effect.Buttons)
+                if (effect.Button != null)
                 {
+                    Button btn = effect.Button;
                     btn.Height = 25;
                     btn.Width = 137;
                     btn.Location = new Point(x, y);
                     btn.Tag = Tuple.Create<IEffect, object>(effect, btn.Tag);
                     btn.Click += new EventHandler(effectButtonClick);
                     toolBox.Controls.Add(btn);
-                    //if (x == 68) {x = 6; y += 31;}
-                    //else x += 31;
                     y += 31;
                 }
-                if (effect.MenuItems != null)
+                if (effect.MenuItem != null)
                 {
-                    ToolStripMenuItem[] items = effect.MenuItems;
-                    foreach (ToolStripMenuItem item in items)
-                    {
+                    ToolStripMenuItem item = effect.MenuItem;
+                    
                         item.Tag = Tuple.Create<IEffect, object>(effect, item.Tag);
                         item.Click += new EventHandler(MenuItem_Click);
                         if ((effect.MenuGroup != "") && (effect.MenuGroup != null))
@@ -64,7 +62,7 @@ namespace Gredactor
                                 menuStrip1.Items.Add(newMenuGroup);
                             }
                             else ((ToolStripMenuItem)menuStrip1.Items.Find(effect.MenuGroup, false)[0]).DropDownItems.Add(item);
-                    }
+                    
                 }
             }
         }

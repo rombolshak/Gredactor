@@ -23,12 +23,17 @@ namespace Rotation
         }
 
         RotationForm form;
-        public bool Prepare(object obj)
+        public bool Prepare(object obj, bool console = false)
         {
             _angle = 0;
-            form = new RotationForm();
-            form.button1.Click += new EventHandler(OK_Click);
-            form.ShowDialog();
+            if (!console)
+            {
+                form = new RotationForm();
+                form.button1.Click += new EventHandler(OK_Click);
+                form.ShowDialog();
+            }
+            else
+                _angle = Int32.Parse((string)obj);
             return _angle != 0;
         }
 
@@ -126,24 +131,35 @@ namespace Rotation
             get { return "Геометрия"; }
         }
 
-        public ToolStripMenuItem[] MenuItems
+        public ToolStripMenuItem MenuItem
         {
-            get { return new ToolStripMenuItem[] { new ToolStripMenuItem(this.Name) }; }
+            get
+            {
+                return new ToolStripMenuItem(this.Name);
+            }
         }
 
-        public Button[] Buttons
+        public Button Button
         {
-            get { Button b = new Button(); b.Text = this.Name; return new Button[] { b }; }
+            get
+            {
+                Button b = new Button(); b.Text = this.Name; return b;
+            }
         }
 
-        public char[] ShortConsoleKey
+        public char ShortConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return 'r'; }
         }
 
-        public string[] LongConsoleKey
+        public string LongConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return "rotate"; }
+        }
+
+        public string ConsoleParams
+        {
+            get { return "<degrees>"; }
         }
     }
 }

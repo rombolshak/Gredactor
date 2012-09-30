@@ -20,7 +20,7 @@ namespace GlassEffect
             get { return "Эффект стекла"; }
         }
 
-        public bool Prepare(object obj)
+        public bool Prepare(object obj, bool console = false)
         {
             return true;
         }
@@ -64,24 +64,35 @@ namespace GlassEffect
             get { return "Фильтры"; }
         }
 
-        public ToolStripMenuItem[] MenuItems
+        public ToolStripMenuItem MenuItem
         {
-            get { return new ToolStripMenuItem[] { new ToolStripMenuItem(this.Name) }; }
+            get
+            {
+                return new ToolStripMenuItem(this.Name);
+            }
         }
 
-        public Button[] Buttons
+        public Button Button
         {
-            get { Button b = new Button(); b.Text = this.Name; return new Button[] { b }; }
+            get
+            {
+                Button b = new Button(); b.Text = this.Name; return b;
+            }
         }
 
-        public char[] ShortConsoleKey
+        public char ShortConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return 'G'; }
         }
 
-        public string[] LongConsoleKey
+        public string LongConsoleKey
         {
-            get { throw new NotImplementedException(); }
+            get { return "glass"; }
+        }
+
+        public string ConsoleParams
+        {
+            get { return ""; }
         }
     }
 }
