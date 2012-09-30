@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Gredactor;
 using FilterProcessing;
+using System.Windows.Forms;
 
 namespace GaussBlurEffect
 {
@@ -31,11 +32,18 @@ namespace GaussBlurEffect
 
         public bool Prepare(object obj)
         {
+            if (!CheckDependencies()) return false;
             _sigma = 0;
             form = new GaussEffectForm();
             form.button2.Click += new EventHandler(OK_Click);
             form.ShowDialog();
             return _sigma != 0;
+        }
+
+        private bool CheckDependencies()
+        {
+            try { new FilterProcessor(); return true; }
+            catch { return false; }
         }
 
         private void CalculateMatrix()
@@ -68,12 +76,20 @@ namespace GaussBlurEffect
 
         public System.Windows.Forms.ToolStripMenuItem[] MenuItems
         {
-            get { return new System.Windows.Forms.ToolStripMenuItem[] { new System.Windows.Forms.ToolStripMenuItem(this.Name) }; }
+            get 
+            {
+                if (!CheckDependencies()) return new System.Windows.Forms.ToolStripMenuItem[] { };
+                return new System.Windows.Forms.ToolStripMenuItem[] { new System.Windows.Forms.ToolStripMenuItem(this.Name) }; 
+            }
         }
 
         public System.Windows.Forms.Button[] Buttons
         {
-            get { System.Windows.Forms.Button b = new System.Windows.Forms.Button(); b.Text = this.Name; return new System.Windows.Forms.Button[] { b }; }
+            get 
+            {
+                if (!CheckDependencies()) return new Button[] { };
+                Button b = new Button(); b.Text = this.Name; return new Button[] { b }; 
+            }
         }
 
         public char[] ShortConsoleKey

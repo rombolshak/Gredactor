@@ -23,7 +23,14 @@ namespace NeonEffect
 
         public bool Prepare(object obj)
         {
+            if (!CheckDependencies()) return false;
             return true;
+        }
+
+        private bool CheckDependencies()
+        {
+            try { new GaussBlurEffect.GaussBlurEffect(); new SobelFilter.SobelFilter(); return true; }
+            catch { return false; }
         }
 
         public Bitmap Apply(Bitmap original)
@@ -79,12 +86,20 @@ namespace NeonEffect
 
         public ToolStripMenuItem[] MenuItems
         {
-            get { return new ToolStripMenuItem[] { new ToolStripMenuItem(this.Name) }; }
+            get
+            {
+                if (!CheckDependencies()) return new ToolStripMenuItem[] { };
+                return new ToolStripMenuItem[] { new ToolStripMenuItem(this.Name) }; 
+            }
         }
 
         public Button[] Buttons
         {
-            get { Button b = new Button(); b.Text = this.Name; return new Button[] { b }; }
+            get
+            {
+                if (!CheckDependencies()) return new Button[] { };
+                Button b = new Button(); b.Text = this.Name; return new Button[] { b }; 
+            }
         }
 
         public char[] ShortConsoleKey

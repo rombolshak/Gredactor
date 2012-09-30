@@ -27,6 +27,7 @@ namespace CustomFilter
         CustomFilterForm form;
         public bool Prepare(object obj)
         {
+            if (!CheckDependences()) return false;
             _strmatrix = "";
             form = new CustomFilterForm();
             form.button1.Click += new EventHandler(OK_Click);
@@ -101,7 +102,17 @@ namespace CustomFilter
 
         public ToolStripMenuItem[] MenuItems
         {
-            get { return new ToolStripMenuItem[] { new ToolStripMenuItem(this.Name) }; }
+            get 
+            {
+                if (!CheckDependences()) return new ToolStripMenuItem[] { };
+                return new ToolStripMenuItem[] { new ToolStripMenuItem(this.Name) }; 
+            }
+        }
+
+        private bool CheckDependences()
+        {
+            try { FilterProcessor fp = new FilterProcessor(); return true; }
+            catch { return false; }
         }
 
         public Button[] Buttons
