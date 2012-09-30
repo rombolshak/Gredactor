@@ -77,6 +77,9 @@ namespace MedianFilter
                             ++pos;
                         }
                     
+                    // the code below is too slooooooow
+                    // but it's the best realization
+                    // nothing to do here
                     Array.Sort(rValues);
                     newValues[index + 2] = rValues[rValues.Length / 2];
 
@@ -90,6 +93,27 @@ namespace MedianFilter
             System.Runtime.InteropServices.Marshal.Copy(newValues, 0, ptr, bytes);
             original.UnlockBits(bmpData);
             return original;
+        }
+
+        void QuickSort(byte[] arr, int first, int last)
+        {
+            byte p = arr[(last - first) / 2 + first];
+            byte temp;
+            int i = first, j = last;
+            while (i <= j)
+            {
+                while (arr[i] < p && i <= last) ++i;
+                while (arr[j] > p && j >= first) --j;
+                if (i <= j)
+                {
+                    temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                    ++i; --j;
+                }
+            }
+            if (j > first) QuickSort(arr, first, j);
+            if (i < last) QuickSort(arr, i, last);
         }
 
         public string MenuGroup
