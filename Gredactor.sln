@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeonEffect", "NeonEffect\Ne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlassEffect", "GlassEffect\GlassEffect.csproj", "{1F34E882-426D-453C-9DC2-ED1A4C908907}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileMover", "FileMover\FileMover.csproj", "{6854E1D2-DBBE-41CB-922D-3F746FBEEA9F}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Gredactor.vsmdi
@@ -232,6 +234,16 @@ Global
 		{1F34E882-426D-453C-9DC2-ED1A4C908907}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1F34E882-426D-453C-9DC2-ED1A4C908907}.Release|x86.ActiveCfg = Release|Any CPU
 		{1F34E882-426D-453C-9DC2-ED1A4C908907}.Release|x86.Build.0 = Release|Any CPU
+		{6854E1D2-DBBE-41CB-922D-3F746FBEEA9F}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{6854E1D2-DBBE-41CB-922D-3F746FBEEA9F}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{6854E1D2-DBBE-41CB-922D-3F746FBEEA9F}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{6854E1D2-DBBE-41CB-922D-3F746FBEEA9F}.Debug|x86.ActiveCfg = Debug|x86
+		{6854E1D2-DBBE-41CB-922D-3F746FBEEA9F}.Debug|x86.Build.0 = Debug|x86
+		{6854E1D2-DBBE-41CB-922D-3F746FBEEA9F}.Release|Any CPU.ActiveCfg = Release|x86
+		{6854E1D2-DBBE-41CB-922D-3F746FBEEA9F}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{6854E1D2-DBBE-41CB-922D-3F746FBEEA9F}.Release|Mixed Platforms.Build.0 = Release|x86
+		{6854E1D2-DBBE-41CB-922D-3F746FBEEA9F}.Release|x86.ActiveCfg = Release|x86
+		{6854E1D2-DBBE-41CB-922D-3F746FBEEA9F}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

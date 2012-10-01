@@ -212,7 +212,15 @@ namespace Gredactor
         {
             Logger.Log("Saving file");
             if (_filename == null) throw new InvalidOperationException();
-            _currentImage.Save(_filename);
+            try
+            {
+                _currentImage.Save(_filename);
+            }
+            catch
+            {
+                _currentImage.Save(_filename + ".tmp");
+                Gredactor.filesToSave.Add(_filename);
+            }
             this.WasChanged = false;
         }
 
@@ -223,8 +231,16 @@ namespace Gredactor
         public void SaveAs(string filename)
         {
             Logger.Log("Saving as " + filename);
-            if (_filename == null) throw new InvalidOperationException();
-            _currentImage.Save(_filename = filename);
+            if (filename == null) throw new InvalidOperationException();
+            try
+            {
+                _currentImage.Save(filename);
+            }
+            catch
+            {
+                _currentImage.Save(filename + ".tmp");
+                Gredactor.filesToSave.Add(filename);
+            }
             this.WasChanged = false;
         }
 

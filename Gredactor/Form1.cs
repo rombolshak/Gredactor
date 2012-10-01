@@ -15,10 +15,17 @@ namespace Gredactor
         ImageHandler imHandler;
         public MainForm()
         {
-            imHandler = ImageHandler.GetInstanse();
-            imHandler.Changed += new EventHandler(imHandler_Changed);
-            InitializeComponent();
-            LoadPlugins();
+            try
+            {
+                imHandler = ImageHandler.GetInstanse();
+                imHandler.Changed += new EventHandler(imHandler_Changed);
+                InitializeComponent();
+                LoadPlugins();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         void imHandler_Changed(object sender, EventArgs e)
@@ -146,7 +153,7 @@ namespace Gredactor
             ofd.CheckFileExists = true;
             ofd.CheckPathExists = true;
             ofd.DefaultExt = ".bmp";
-            ofd.Filter = "Изображения|*.bmp;*.jpg;*.jpeg;*.png|Все файлы|*.*";
+            ofd.Filter = "Изображения|*.bmp;*.jpg;*.jpeg;*.png";
             ofd.Multiselect = false;
             ofd.Title = "Выберите файл";
             ofd.FileOk += new CancelEventHandler(FileSelected);
@@ -156,6 +163,7 @@ namespace Gredactor
         void FileSelected(object sender, CancelEventArgs e)
         {
             string file = ((OpenFileDialog)sender).FileName;
+            imHandler.Reset();
             imHandler.Open(file);
             pictureBox.Image = imHandler.Image;
             pictureBox.Width = pictureBox.Image.Width;
@@ -176,6 +184,8 @@ namespace Gredactor
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveFileDialog svd = new SaveFileDialog();
+            svd.Filter = "Изображения|*.bmp;*.jpg;*.jpeg;*.png";
+            svd.RestoreDirectory = true;
             if (svd.ShowDialog() == DialogResult.OK)
             {
                 imHandler.SaveAs(svd.FileName);
@@ -223,7 +233,7 @@ namespace Gredactor
 
                 _guiStart = control.PointToScreen(new Point(e.X, e.Y));
                 _selectionStart = e.Location;
-                ControlPaint.DrawReversibleFrame(_guiRect, Color.Black, FrameStyle.Dashed);
+                //ControlPaint.DrawReversibleFrame(_guiRect, Color.Black, FrameStyle.Dashed);
                 _guiRect = new Rectangle(0, 0, 0, 0);
             }
 
@@ -280,6 +290,11 @@ namespace Gredactor
         private void picturePanel_MouseClick(object sender, MouseEventArgs e)
         {
             //MessageBox.Show(e.X + " " + e.Y);
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            imHandler.Reset();
         }
 
 

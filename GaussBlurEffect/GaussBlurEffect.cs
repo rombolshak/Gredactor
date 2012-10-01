@@ -41,6 +41,32 @@ namespace GaussBlurEffect
                 form.ShowDialog();
             }
             else _sigma = Int32.Parse((string)obj);
+            if (_sigma > 200)
+            {
+                if (_sigma > 400)
+                {
+                    if (_sigma > 800)
+                    {
+                        DialogResult dr = System.Windows.Forms.MessageBox.Show("Значение слишком большое. Программа может работать неопределенно долго. Установить значение 300? При нажатии \"Нет\" сохранится значение " + _sigma, "Внимание", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+                        if (dr == DialogResult.Yes)
+                            _sigma = 300;
+                        else if (dr == DialogResult.Cancel)
+                            _sigma = 0;
+                    }
+                    else
+                    {
+                        DialogResult dr = System.Windows.Forms.MessageBox.Show("Значение слишком большое. Программа может работать неопределенно долго. Продолжить?", "Внимание", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (dr == DialogResult.No)
+                            _sigma = 0;
+                    }
+                }
+                else
+                {
+                    DialogResult dr = System.Windows.Forms.MessageBox.Show("Значение достаточно большое. Программа может работать долго. Съешьте еще этих мягких французских булочек да выпейте чаю", "Внимание", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                    if (dr == DialogResult.Cancel)
+                        _sigma = 0;
+                }
+            }
             return _sigma != 0;
         }
 

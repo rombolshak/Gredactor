@@ -36,6 +36,10 @@ namespace Gredactor
     
     class Gredactor
     {
+
+        public static System.Collections.Generic.List<IEffect> plugins;
+        public static System.Collections.Generic.List<string> filesToSave;
+
         [DllImport("user32.dll")]
         public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
@@ -45,18 +49,22 @@ namespace Gredactor
         [STAThread]
         static void RunForm()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            filesToSave = new System.Collections.Generic.List<string>();
+            IntPtr hWnd = FindWindow(null, "Gredactor");
+            if (hWnd != IntPtr.Zero)
+                ShowWindow(hWnd, 0); // 0 = SW_HIDE           
             Application.Run(new MainForm());
+            ShowWindow(hWnd, 1);
         }
 
-        public static System.Collections.Generic.List<IEffect> plugins;
         /// <summary>
         /// The main entry point for the application.
         /// </summary>                             
         [STAThread]
         static void Main()
         {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
             try
             {
                 Console.Title = "Gredactor";
@@ -69,14 +77,8 @@ namespace Gredactor
 
                 string[] args = Environment.GetCommandLineArgs();
 
-                if (args.Length == 1)
-                {
-                    IntPtr hWnd = FindWindow(null, "Gredactor");
-                    if (hWnd != IntPtr.Zero)
-                        ShowWindow(hWnd, 0); // 0 = SW_HIDE
-                    RunForm();
-                    ShowWindow(hWnd, 1);
-                }
+                if (args.Length == 1)                                    
+                    RunForm();                
                 else
                 {
                     if (args.Length < 4)
@@ -151,6 +153,12 @@ namespace Gredactor
                 Logger.Log(ex.Message + "\n=====================" + Environment.NewLine + "Stack:" + ex.StackTrace + Environment.NewLine + "====================");
                 System.Windows.Forms.MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo("FileMover.exe");
+            //psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            psi.CreateNoWindow = true;
+            psi.Arguments = String.Join(" ", filesToSave.ToArray());
+            System.Diagnostics.Process.Start(psi);
         }
 
         private static int ExtractEffect(string[] args, System.Collections.Generic.Dictionary<char, IEffect> shortKeys, System.Collections.Queue effects, int i)

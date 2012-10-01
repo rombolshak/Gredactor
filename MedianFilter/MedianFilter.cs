@@ -39,6 +39,32 @@ namespace MedianFilter
                 form.ShowDialog();
             }
             else _radius = Int32.Parse((string)obj);
+            if (_radius > 10)
+            {
+                if (_radius > 20)
+                {
+                    if (_radius > 30)
+                    {
+                        DialogResult dr = System.Windows.Forms.MessageBox.Show("Значение радиуса слишком большое. Программа может работать неопределенно долго. Установить значение 30? При нажатии \"Нет\" сохранится значение " + _radius, "Внимание", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+                        if (dr == DialogResult.Yes)
+                            _radius = 30;
+                        else if (dr == DialogResult.Cancel)
+                            _radius = 0;
+                    }
+                    else
+                    {
+                        DialogResult dr = System.Windows.Forms.MessageBox.Show("Значение радиуса слишком большое. Программа может работать неопределенно долго. Продолжить?", "Внимание", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (dr == DialogResult.No)
+                            _radius = 0;
+                    }
+                }
+                else
+                {
+                    DialogResult dr = System.Windows.Forms.MessageBox.Show("Значение радиуса достаточно большое. Программа может работать долго. Съешьте еще этих мягких французских булочек да выпейте чаю", "Внимание", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                    if (dr == DialogResult.Cancel)
+                        _radius = 0;
+                }
+            }
             return _radius != 0;
         }
 
