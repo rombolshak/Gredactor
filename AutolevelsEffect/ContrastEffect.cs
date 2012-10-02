@@ -79,7 +79,7 @@ namespace ContrastEffect
             //}
         }
 
-        public Bitmap Apply(Bitmap original)
+        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
         {
             //if (operation == Operation.None) return original;
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
@@ -245,7 +245,7 @@ namespace ContrastEffect
             return true;
         }
 
-        public Bitmap Apply(Bitmap original)
+        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
         {
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);

@@ -25,7 +25,7 @@ namespace GlassEffect
             return true;
         }
 
-        public Bitmap Apply(Bitmap original)
+        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
         {
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
@@ -40,6 +40,13 @@ namespace GlassEffect
             for (int y = 0; y < bmpData.Height; ++y)
                 for (int x = 0; x < bmpData.Width; ++x)
                 {
+                    if (worker != null)
+                        if (worker.CancellationPending)
+                        {
+                            original.UnlockBits(bmpData);
+                            return original;
+                        }
+
                     int index = (y * bmpData.Width + x) * 3;
                     if (index + 2 >= bytes) break;
 
@@ -52,6 +59,9 @@ namespace GlassEffect
                     newValues[index + 2] = values[fromIndex + 2];
                     newValues[index + 1] = values[fromIndex + 1];
                     newValues[index + 0] = values[fromIndex + 0];
+
+                    if (worker != null)
+                        worker.ReportProgress((int)(100.0 * (double)index / (double)bytes));
                 }
 
             System.Runtime.InteropServices.Marshal.Copy(newValues, 0, ptr, bytes);

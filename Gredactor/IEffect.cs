@@ -13,7 +13,7 @@ namespace Gredactor
         string Description { get; }
 
         bool Prepare(object obj, bool console = false);
-        Bitmap Apply(Bitmap original);
+        Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker = null);
 
         string MenuGroup { get; }
         ToolStripMenuItem MenuItem { get; }

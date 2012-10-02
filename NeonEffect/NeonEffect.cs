@@ -33,18 +33,18 @@ namespace NeonEffect
             catch { return false; }
         }
 
-        public Bitmap Apply(Bitmap original)
+        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
         {
             //MedianFilter.MedianFilter mf = new MedianFilter.MedianFilter();
             //mf.Radius = 1;
             //original = mf.Apply(original);
             GaussBlurEffect.GaussBlurEffect gf = new GaussBlurEffect.GaussBlurEffect();
             gf.Sigma = 1;
-            original = gf.Apply(original);
+            original = gf.Apply(original, worker);
 
             SobelFilter.SobelFilter sf = new SobelFilter.SobelFilter();
             sf.notGray = true;
-            original = sf.Apply(original);
+            original = sf.Apply(original, worker);
 
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
@@ -56,10 +56,20 @@ namespace NeonEffect
             byte[] rValues = new byte[256], gValues = new byte[256], bValues = new byte[256];
             for (int i = 0; i < values.Length - 1; i += 3)
             {
+                if (worker != null)
+                    if (worker.CancellationPending)
+                    {
+                        original.UnlockBits(bmpData);
+                        return original;
+                    }
+
                 if (i + 2 >= values.Length) break;
                 ++rValues[values[i + 2]];
                 ++gValues[values[i + 1]];
                 ++bValues[values[i + 0]];
+
+                if (worker != null)
+                    worker.ReportProgress(i / bytes * 50);
             }
 
             byte rMax = rValues.Last(x => x == rValues.Max());
@@ -68,10 +78,20 @@ namespace NeonEffect
 
             for (int i = 0; i < values.Length - 1; i += 3)
             {
+                if (worker != null)
+                    if (worker.CancellationPending)
+                    {
+                        original.UnlockBits(bmpData);
+                        return original;
+                    }
+
                 if (i + 2 >= values.Length) break;
                 if (values[i + 2] > 128) values[i + 2] = rMax;
                 if (values[i + 1] > 128) values[i + 1] = gMax;
                 if (values[i + 0] > 128) values[i + 0] = bMax;
+
+                if (worker != null)
+                    worker.ReportProgress(i / bytes * 50 + 50);
             }
 
             System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);

@@ -5,6 +5,7 @@ using System.Text;
 using Gredactor;
 using System.Drawing;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace Rotation
 {
@@ -43,7 +44,7 @@ namespace Rotation
             form.Close();
         }
 
-        public Bitmap Apply(Bitmap original)
+        public Bitmap Apply(Bitmap original, BackgroundWorker worker)
         {
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
@@ -59,6 +60,12 @@ namespace Rotation
             for (int y = 0; y < bmpData.Height; ++y)
                 for (int x = 0; x < bmpData.Width; ++x)
                 {
+                    if (worker != null)
+                        if (worker.CancellationPending)
+                        {
+                            original.UnlockBits(bmpData);
+                            return original;
+                        }
                     double h = Math.Abs(y - center.Y);
                     double r = Math.Sqrt(Math.Pow(x - center.X, 2) + Math.Pow(h, 2));
                     double alpha = Math.Atan2(y - center.Y, x - center.X);
@@ -74,6 +81,9 @@ namespace Rotation
                     newValues[index + 2] = Interpolate(values, fromX, fromY, Colors.Red, bmpData.Width, bmpData.Height);
                     newValues[index + 1] = Interpolate(values, fromX, fromY, Colors.Green, bmpData.Width, bmpData.Height);
                     newValues[index + 0] = Interpolate(values, fromX, fromY, Colors.Blue, bmpData.Width, bmpData.Height);
+
+                    if (worker != null)
+                        worker.ReportProgress(index / bytes * 100);                    
                 }
 
             System.Runtime.InteropServices.Marshal.Copy(newValues, 0, ptr, bytes);
@@ -103,11 +113,12 @@ namespace Rotation
             else
             {
                 double del = (x2 - x1) * (y2 - y1);
-                p =
-                    q1 * (x2 - x) * (y2 - y) / del +
-                    q2 * (x - x1) * (y2 - y) / del +
-                    q3 * (x2 - x) * (y - y1) / del +
-                    q4 * (x - x1) * (y - y1) / del;
+                p = (
+                    q1 * (x2 - x) * (y2 - y) +
+                    q2 * (x - x1) * (y2 - y) +
+                    q3 * (x2 - x) * (y - y1) +
+                    q4 * (x - x1) * (y - y1) 
+                    ) / del;
             }
 
             if (p > 255) p = 255;

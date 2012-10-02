@@ -85,12 +85,12 @@ namespace CustomFilter
             _strmatrix = form.textBox1.Text;
         }
 
-        public Bitmap Apply(Bitmap original)
+        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
         {
             try
             {
                 FilterProcessor fp = new FilterProcessor(_matrix);
-                return fp.Process(original);
+                return fp.Process(original, worker);
             }
             catch (Exception ex)
             {

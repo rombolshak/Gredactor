@@ -92,11 +92,11 @@ namespace GaussBlurEffect
             _sigma = (double)form.numericUpDown1.Value;
         }
 
-        public System.Drawing.Bitmap Apply(System.Drawing.Bitmap original)
+        public System.Drawing.Bitmap Apply(System.Drawing.Bitmap original, System.ComponentModel.BackgroundWorker worker)
         {
             CalculateMatrix();
             FilterProcessor processor = new FilterProcessor(_matrix, true);
-            return processor.Process(original);
+            return processor.Process(original, worker);
         }
 
         public string MenuGroup

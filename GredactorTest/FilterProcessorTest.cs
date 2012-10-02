@@ -110,7 +110,7 @@ namespace GredactorTest
                 new double[] {0,0,0},
                 new double[] {0,1,0}
             });
-            bmp = processor.Process(bmp);
+            bmp = processor.Process(bmp, null);
             for (int x = 0; x < 3; ++x) for (int y = 0; y < 4; ++y) Assert.IsTrue(bmp.GetPixel(x, y) == System.Drawing.Color.FromArgb(x + y * 4 + 2, x + y * 4 + 2, x + y * 4 + 2));
             for (int y = 0; y < 4; ++y) Assert.IsTrue(bmp.GetPixel(3, y) == System.Drawing.Color.FromArgb(255, 0, 0, 0));
         }
@@ -125,7 +125,7 @@ namespace GredactorTest
                 new double[] {0,1,0},
                 new double[] {0,0,1}
             });
-            bmp = processor.Process(bmp);
+            bmp = processor.Process(bmp, null);
             Assert.IsTrue(bmp.GetPixel(0, 0) == System.Drawing.Color.FromArgb(3, 3, 3));
             Assert.IsTrue(bmp.GetPixel(1, 0) == System.Drawing.Color.FromArgb(4,4,4));
             Assert.IsTrue(bmp.GetPixel(2, 0) == System.Drawing.Color.FromArgb(5,5,5));
@@ -163,7 +163,7 @@ namespace GredactorTest
             System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(5, 5);
             for (int x = 0; x < 5; ++x) for (int y = 0; y < 5; ++y) bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(x + y * 5, x + y * 5, x + y * 5));
             processor = new FilterProcessing.FilterProcessor(new double[][] { new double[] { 1, 0, 0 } }, true);
-            bmp = processor.Process(bmp);
+            bmp = processor.Process(bmp, null);
 
             Assert.IsTrue(bmp.GetPixel(0, 0) == System.Drawing.Color.FromArgb(0, 0, 0));
             Assert.IsTrue(bmp.GetPixel(1, 0) == System.Drawing.Color.FromArgb(0, 0, 0));

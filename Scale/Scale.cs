@@ -44,7 +44,7 @@ namespace Scale
             form.Close();
         }
 
-        public Bitmap Apply(Bitmap original)
+        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
         {
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
@@ -66,6 +66,13 @@ namespace Scale
             for (int y = 0; y < newHeight; ++y)
                 for (int x = 0; x < newWidth; ++x)
                 {
+                    if (worker != null)
+                        if (worker.CancellationPending)
+                        {
+                            original.UnlockBits(bmpData);
+                            return original;
+                        }
+
                     int newIndex = (y * newWidth + x) * 3;
                     if (newIndex + 2 >= newValues.Length) break;
 
@@ -73,6 +80,9 @@ namespace Scale
                     newValues[newIndex + 2] = Interpolate(values, fromX, fromY, Colors.Red, original.Width, original.Height);
                     newValues[newIndex + 1] = Interpolate(values, fromX, fromY, Colors.Green, original.Width, original.Height);
                     newValues[newIndex + 0] = Interpolate(values, fromX, fromY, Colors.Blue, original.Width, original.Height);
+
+                    if (worker != null)
+                        worker.ReportProgress(newIndex / bytes * 100);
                 }
 
             System.Runtime.InteropServices.Marshal.Copy(newValues, 0, ptr, newValues.Length);

@@ -197,7 +197,14 @@ namespace Gredactor
         {
             Logger.Log("Opening file " + filename);
             if (!File.Exists(filename)) throw new FileNotFoundException("Файл не найден");
-            _currentImage = new Bitmap(filename);
+            try
+            {
+                _currentImage = new Bitmap(filename);
+            }
+            catch
+            {
+                throw new ArgumentException("Файл не является изображением");
+            }
             _filename = filename;
             _undoStack.Clear();
             _changed = false;

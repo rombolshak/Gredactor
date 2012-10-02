@@ -164,11 +164,20 @@ namespace Gredactor
         {
             string file = ((OpenFileDialog)sender).FileName;
             imHandler.Reset();
-            imHandler.Open(file);
+            try
+            {
+                imHandler.Open(file);
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                pictureBox.Image = null;
+                this.Text = "Gredactor";
+                return;
+            }
             pictureBox.Image = imHandler.Image;
             pictureBox.Width = pictureBox.Image.Width;
             pictureBox.Height = pictureBox.Image.Height;
-            pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             saveAsToolStripMenuItem.Enabled = true;
             this.Text = "Gredactor [" + Path.GetFileName(file) + "] ";
             Logger.Log("File " + file + " opened");

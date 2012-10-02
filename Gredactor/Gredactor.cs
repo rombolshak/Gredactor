@@ -154,11 +154,14 @@ namespace Gredactor
                 System.Windows.Forms.MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo("FileMover.exe");
-            //psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            psi.CreateNoWindow = true;
-            psi.Arguments = String.Join(" ", filesToSave.ToArray());
-            System.Diagnostics.Process.Start(psi);
+            if (filesToSave != null)
+            {
+                System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo("FileMover.exe");
+                //psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                psi.CreateNoWindow = true;
+                psi.Arguments = String.Join(" ", filesToSave.ToArray());
+                System.Diagnostics.Process.Start(psi);
+            }
         }
 
         private static int ExtractEffect(string[] args, System.Collections.Generic.Dictionary<char, IEffect> shortKeys, System.Collections.Queue effects, int i)

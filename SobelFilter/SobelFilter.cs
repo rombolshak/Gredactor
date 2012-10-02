@@ -34,18 +34,18 @@ namespace SobelFilter
             catch { return false; }
         }
 
-        public Bitmap Apply(Bitmap original)
+        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
         {
             GrayscaleEffect.Grasycale gray = new GrayscaleEffect.Grasycale();
-            if (!notGray) original = gray.Apply(original);
+            if (!notGray) original = gray.Apply(original, worker);
 
             FilterProcessor processor = new FilterProcessor();
 
             processor.SetMatrix(new double[][] { new double[] { 1, 2, 1 }, new double[] { 0, 0, 0 }, new double[] { -1, -2, -1 } });
-            Bitmap Gx = processor.Process((Bitmap)original.Clone());
+            Bitmap Gx = processor.Process((Bitmap)original.Clone(), worker);
 
             processor.SetMatrix(new double[][] { new double[] { 1, 0, -1 }, new double[] { 2, 0, -2 }, new double[] { 1, 0, -1 } });
-            Bitmap Gy = processor.Process((Bitmap)original.Clone());
+            Bitmap Gy = processor.Process((Bitmap)original.Clone(), worker);
             
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
 
@@ -73,6 +73,13 @@ namespace SobelFilter
 
             for (int i = 0; i < values.Length; i += 3)
             {
+                if (worker != null)
+                    if (worker.CancellationPending)
+                    {
+                        original.UnlockBits(bmpData);
+                        return original;
+                    }
+
                 if (i + 2 >= values.Length) break;
                 double r = Math.Sqrt((double)valuesGx[i + 2] * (double)valuesGx[i + 2] + (double)valuesGy[i + 2] * (double)valuesGy[i + 2]);
                 double g = Math.Sqrt((double)valuesGx[i + 1] * (double)valuesGx[i + 1] + (double)valuesGy[i + 1] * (double)valuesGy[i + 1]);
@@ -80,6 +87,9 @@ namespace SobelFilter
                 values[i + 0] = (byte)(r / Math.Sqrt(2));
                 values[i + 1] = (byte)(g / Math.Sqrt(2));
                 values[i + 2] = (byte)(b / Math.Sqrt(2));
+
+                if (worker != null)
+                    worker.ReportProgress(i / bytes * 100);
             }
 
             #region Disposing

@@ -23,7 +23,7 @@ namespace GrayscaleEffect
         {
             return true;
         }
-        public Bitmap Apply(Bitmap original)
+        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
         {
             //Bitmap newBitmap = (Bitmap)original.Clone();
 
@@ -36,9 +36,19 @@ namespace GrayscaleEffect
 
             for (int i = 0; i < values.Length; i += 3)
             {
+                if (worker != null)
+                    if (worker.CancellationPending)
+                    {
+                        original.UnlockBits(bmpData);
+                        return original;
+                    }
+
                 if (i + 2 >= values.Length) break;
                 byte gray = (byte)(values[i + 2] * .3 + values[i + 1] * .59 + values[i+0] * .11);
                 values[i + 0] = values[i + 1] = values[i + 2] = gray;
+
+                if (worker != null)
+                    worker.ReportProgress(i / bytes * 100);
             }
 
             System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);
