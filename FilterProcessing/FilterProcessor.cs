@@ -39,7 +39,7 @@ namespace FilterProcessing
             return true;
         }
 
-        public System.Drawing.Bitmap Process(System.Drawing.Bitmap original, System.ComponentModel.BackgroundWorker worker)
+        public System.Drawing.Bitmap Process(System.Drawing.Bitmap original, System.ComponentModel.BackgroundWorker worker = null, bool normalize = true)
         {
             System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
@@ -80,7 +80,7 @@ namespace FilterProcessing
                                     double weight = _matrix[i + _matrix.Length / 2][j + _matrix.Length / 2];
                                     SumValues(values, ref sum, ref r, ref g, ref b, matrIndex, weight);
                                 }
-                            NormalizeValues(ref r, ref g, ref b, ref sum); // там нормировка
+                            NormalizeValues(ref r, ref g, ref b, ref sum, normalize); // там нормировка
                             WriteNewValues(newValues, index, r, g, b);
 
                             if (worker != null)
@@ -114,7 +114,7 @@ namespace FilterProcessing
                                 double weight = _matrix[0][k + _matrix[0].Length / 2];
                                 SumValues(values, ref sum, ref r, ref g, ref b, matrIndex, weight);
                             }
-                            NormalizeValues(ref r, ref g, ref b, ref sum);
+                            NormalizeValues(ref r, ref g, ref b, ref sum, normalize);
                             WriteNewValues(tmpValues, index, r, g, b);
 
                             if (worker != null)
@@ -143,7 +143,7 @@ namespace FilterProcessing
                                 double weight = _matrix[0][k + _matrix[0].Length / 2];
                                 SumValues(tmpValues, ref sum, ref r, ref g, ref b, matrIndex, weight);
                             }
-                            NormalizeValues(ref r, ref g, ref b, ref sum);
+                            NormalizeValues(ref r, ref g, ref b, ref sum, normalize);
                             WriteNewValues(newValues, index, r, g, b);
 
                             if (worker != null)
@@ -169,12 +169,18 @@ namespace FilterProcessing
             newValues[index + 0] = (byte)b;
         }
 
-        private void NormalizeValues(ref double r, ref double g, ref double b, ref double sum)
+        private void NormalizeValues(ref double r, ref double g, ref double b, ref double sum, bool normalizeBySum)
         {
-            if (sum == 0) sum = 1;
-            r /= sum; if (r < 0) r = 0; if (r > 255) r = 255;
-            g /= sum; if (g < 0) g = 0; if (g > 255) g = 255;
-            b /= sum; if (b < 0) b = 0; if (b > 255) b = 255;
+            if (normalizeBySum)
+            {
+                if (sum == 0) sum = 1;
+                r /= sum; 
+                g /= sum; 
+                b /= sum; 
+            }
+            if (r < 0) r = 0; if (r > 255) r = 255;
+            if (g < 0) g = 0; if (g > 255) g = 255;
+            if (b < 0) b = 0; if (b > 255) b = 255;
         }
 
         private void SumValues(byte[] values, ref double sum, ref double r, ref double g, ref double b, int matrIndex, double weight)

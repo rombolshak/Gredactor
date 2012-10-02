@@ -14,6 +14,7 @@ namespace CustomFilter
     {
         double[][] _matrix;
         string _strmatrix = "";
+        bool _normalize = true;
         public string Name
         {
             get { return "Свой фильтр"; }
@@ -29,6 +30,7 @@ namespace CustomFilter
         {
             if (!CheckDependences()) return false;
             _strmatrix = "";
+            _normalize = true;
             if (!console)
             {
                 form = new CustomFilterForm();
@@ -83,6 +85,7 @@ namespace CustomFilter
         void OK_Click(object sender, EventArgs e)
         {
             _strmatrix = form.textBox1.Text;
+            _normalize = form.checkBox1.Checked;
         }
 
         public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
@@ -90,7 +93,7 @@ namespace CustomFilter
             try
             {
                 FilterProcessor fp = new FilterProcessor(_matrix);
-                return fp.Process(original, worker);
+                return fp.Process(original, worker, _normalize);
             }
             catch (Exception ex)
             {

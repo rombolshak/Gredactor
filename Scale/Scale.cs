@@ -46,6 +46,7 @@ namespace Scale
 
         public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
         {
+            _scale = Math.Round(_scale, 1);
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             IntPtr ptr = bmpData.Scan0;

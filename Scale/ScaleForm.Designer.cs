@@ -46,12 +46,12 @@
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.DecimalPlaces = 2;
+            this.numericUpDown1.DecimalPlaces = 1;
             this.numericUpDown1.Increment = new decimal(new int[] {
-            125,
+            3,
             0,
             0,
-            131072});
+            65536});
             this.numericUpDown1.Location = new System.Drawing.Point(13, 30);
             this.numericUpDown1.Name = "numericUpDown1";
             this.numericUpDown1.Size = new System.Drawing.Size(176, 20);

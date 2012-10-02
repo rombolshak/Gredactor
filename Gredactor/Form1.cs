@@ -230,8 +230,7 @@ namespace Gredactor
         Point _guiStart;
         Point _selectionStart;
 
-        private void Form1_MouseDown(object sender,
-            System.Windows.Forms.MouseEventArgs e)
+        private void Form1_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (imHandler.Image == null) return;
 
@@ -269,28 +268,29 @@ namespace Gredactor
 
                 int width = endPoint.X - _guiStart.X;
                 int height = endPoint.Y - _guiStart.Y;
-                _guiRect = new Rectangle(_guiStart.X,
-                    _guiStart.Y, width, height);
+                _guiRect = new Rectangle(_guiStart.X, _guiStart.Y, width, height);
 
                 // Draw the new rectangle by calling DrawReversibleFrame
                 // again.  
                 ControlPaint.DrawReversibleFrame(_guiRect,
                     Color.Black, FrameStyle.Dashed);
 
-                width = e.X - _selectionStart.X;
-                height = e.Y - _selectionStart.Y;
-                _selectionRect = new Rectangle(_selectionStart.X, _selectionStart.Y, width, height);
+
             }
         }
 
-        private void Form1_MouseUp(object sender,
-            System.Windows.Forms.MouseEventArgs e)
+        private void Form1_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (imHandler.Image == null) return;
             // If the MouseUp event occurs, the user is not dragging.
             isDrag = false;
             if (_selectionStart != e.Location)
+            {
+                int width = e.X - _selectionStart.X;
+                int height = e.Y - _selectionStart.Y;
+                _selectionRect = new Rectangle(_selectionStart.X, _selectionStart.Y, width, height);
                 imHandler.SetSelection(_selectionRect);
+            }
             else imHandler.ResetSelection();
         }
 
