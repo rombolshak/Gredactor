@@ -85,12 +85,12 @@ namespace CustomFilter
             _normalize = form.checkBox1.Checked;
         }
 
-        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
+        public Bitmap Apply(Bitmap original)
         {
             try
             {
                 FilterProcessor fp = new FilterProcessor(_matrix);
-                return fp.Process(original, worker, _normalize);
+                return fp.Process(original, _normalize);
             }
             catch (Exception ex)
             {
