@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Gredactor;
 using System.Drawing;
 using System.Windows.Forms;
+using Gredactor;
 
 namespace Scale
 {
@@ -31,7 +28,7 @@ namespace Scale
             {
                 form = new ScaleForm();
                 form.button1.Click += new EventHandler(OK_Click);
-                form.ShowDialog();                
+                form.ShowDialog();
             }
             else
                 _scale = Int32.Parse((string)obj);
@@ -44,7 +41,7 @@ namespace Scale
             form.Close();
         }
 
-        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
+        public Bitmap Apply(Bitmap original)
         {
             _scale = Math.Round(_scale, 1);
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
@@ -61,19 +58,11 @@ namespace Scale
             ptr = bmpData.Scan0;
             bytes = Math.Abs(bmpData.Stride) * bmpData.Height;
             byte[] newValues = new byte[bytes];
-           // System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
 
             int newWidth = bmpData.Width, newHeight = bmpData.Height;
             for (int y = 0; y < newHeight; ++y)
                 for (int x = 0; x < newWidth; ++x)
                 {
-                    if (worker != null)
-                        if (worker.CancellationPending)
-                        {
-                            original.UnlockBits(bmpData);
-                            return original;
-                        }
-
                     int newIndex = (y * newWidth + x) * 3;
                     if (newIndex + 2 >= newValues.Length) break;
 
@@ -81,9 +70,6 @@ namespace Scale
                     newValues[newIndex + 2] = Interpolate(values, fromX, fromY, Colors.Red, original.Width, original.Height);
                     newValues[newIndex + 1] = Interpolate(values, fromX, fromY, Colors.Green, original.Width, original.Height);
                     newValues[newIndex + 0] = Interpolate(values, fromX, fromY, Colors.Blue, original.Width, original.Height);
-
-                    if (worker != null)
-                        worker.ReportProgress(newIndex / bytes * 100);
                 }
 
             System.Runtime.InteropServices.Marshal.Copy(newValues, 0, ptr, newValues.Length);
@@ -95,7 +81,6 @@ namespace Scale
         {
             int x1 = (int)Math.Floor(x), x2 = (int)Math.Ceiling(x);
             int y1 = (int)Math.Floor(y), y2 = (int)Math.Ceiling(y);
-            //if (!InBounds(x, y, width, height)) return (byte)0;
 
             double q1 = (InBounds(x1, y1, width, height)) ? values[((y1) * width + (x1)) * 3 + (int)color] : 0;
             double q2 = (InBounds(x2, y1, width, height)) ? values[((y1) * width + (x2)) * 3 + (int)color] : 0;

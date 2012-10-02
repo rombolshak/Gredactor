@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Gredactor;
-using FilterProcessing;
-using System.Windows.Forms;
 using System.Drawing;
+using System.Windows.Forms;
+using FilterProcessing;
+using Gredactor;
 
 namespace SobelFilter
 {
@@ -19,7 +16,7 @@ namespace SobelFilter
 
         public string Description
         {
-            get { return "Выделение границ операторот Собеля"; }
+            get { return "Выделение границ оператором Собеля"; }
         }
 
         public bool Prepare(object obj, bool console = false)
@@ -34,19 +31,19 @@ namespace SobelFilter
             catch { return false; }
         }
 
-        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
+        public Bitmap Apply(Bitmap original)
         {
             GrayscaleEffect.Grasycale gray = new GrayscaleEffect.Grasycale();
-            if (!notGray) original = gray.Apply(original, worker);
+            if (!notGray) original = gray.Apply(original);
 
             FilterProcessor processor = new FilterProcessor();
 
             processor.SetMatrix(new double[][] { new double[] { 1, 2, 1 }, new double[] { 0, 0, 0 }, new double[] { -1, -2, -1 } });
-            Bitmap Gx = processor.Process((Bitmap)original.Clone(), worker);
+            Bitmap Gx = processor.Process((Bitmap)original.Clone());
 
             processor.SetMatrix(new double[][] { new double[] { 1, 0, -1 }, new double[] { 2, 0, -2 }, new double[] { 1, 0, -1 } });
-            Bitmap Gy = processor.Process((Bitmap)original.Clone(), worker);
-            
+            Bitmap Gy = processor.Process((Bitmap)original.Clone());
+
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
 
             #region Initialization
@@ -73,13 +70,6 @@ namespace SobelFilter
 
             for (int i = 0; i < values.Length; i += 3)
             {
-                if (worker != null)
-                    if (worker.CancellationPending)
-                    {
-                        original.UnlockBits(bmpData);
-                        return original;
-                    }
-
                 if (i + 2 >= values.Length) break;
                 double r = Math.Sqrt((double)valuesGx[i + 2] * (double)valuesGx[i + 2] + (double)valuesGy[i + 2] * (double)valuesGy[i + 2]);
                 double g = Math.Sqrt((double)valuesGx[i + 1] * (double)valuesGx[i + 1] + (double)valuesGy[i + 1] * (double)valuesGy[i + 1]);
@@ -87,21 +77,10 @@ namespace SobelFilter
                 values[i + 0] = (byte)(r / Math.Sqrt(2));
                 values[i + 1] = (byte)(g / Math.Sqrt(2));
                 values[i + 2] = (byte)(b / Math.Sqrt(2));
-
-                if (worker != null)
-                    worker.ReportProgress(i / bytes * 100);
             }
 
-            #region Disposing
             System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);
             original.UnlockBits(bmpData);
-
-            //System.Runtime.InteropServices.Marshal.Copy(valuesGy, 0, ptrY, bytesY);
-            //Gy.UnlockBits(bmpDataY);
-
-            //System.Runtime.InteropServices.Marshal.Copy(valuesGx, 0, ptrX, bytesX);
-            //Gx.UnlockBits(bmpDataX);
-            #endregion
             return original;
         }
 

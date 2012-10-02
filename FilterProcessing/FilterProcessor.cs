@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace FilterProcessing
 {
@@ -39,7 +36,7 @@ namespace FilterProcessing
             return true;
         }
 
-        public System.Drawing.Bitmap Process(System.Drawing.Bitmap original, System.ComponentModel.BackgroundWorker worker = null, bool normalize = true)
+        public System.Drawing.Bitmap Process(System.Drawing.Bitmap original, bool normalize = true)
         {
             System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
@@ -58,13 +55,6 @@ namespace FilterProcessing
                     for (int y = 0; y < bmpData.Height; ++y)
                         for (int x = 0; x < bmpData.Width; ++x)
                         {
-                            if (worker != null)
-                                if (worker.CancellationPending)
-                                {
-                                    original.UnlockBits(bmpData);
-                                    return original;
-                                }
-
                             int index = GetIndex(x, y, bmpData.Width); // куды вставлять
                             double r = 0, g = 0, b = 0, sum = 0;
                             for (int j = -_matrix.Length / 2; j <= _matrix.Length / 2; ++j)
@@ -82,9 +72,6 @@ namespace FilterProcessing
                                 }
                             NormalizeValues(ref r, ref g, ref b, ref sum, normalize); // там нормировка
                             WriteNewValues(newValues, index, r, g, b);
-
-                            if (worker != null)
-                                worker.ReportProgress(index / bytes * 100);
                         }
                 }
                 else
@@ -97,13 +84,6 @@ namespace FilterProcessing
                     {
                         for (int x = 0; x < bmpData.Width; ++x)
                         {
-                            if (worker != null)
-                                if (worker.CancellationPending)
-                                {
-                                    original.UnlockBits(bmpData);
-                                    return original;
-                                }
-
                             int index = GetIndex(x, y, bmpData.Width);
                             double sum = 0, r = 0, g = 0, b = 0;
                             for (int k = -_matrix[0].Length / 2; k < _matrix[0].Length / 2; ++k) // здесь матрица суть вектор, инфа 100%
@@ -116,9 +96,6 @@ namespace FilterProcessing
                             }
                             NormalizeValues(ref r, ref g, ref b, ref sum, normalize);
                             WriteNewValues(tmpValues, index, r, g, b);
-
-                            if (worker != null)
-                                worker.ReportProgress(index / bytes * 50);
                         }
                     }
 
@@ -126,13 +103,6 @@ namespace FilterProcessing
                     for (int x = 0; x < bmpData.Width; ++x)
                         for (int y = 0; y < bmpData.Height; ++y)
                         {
-                            if (worker != null)
-                                if (worker.CancellationPending)
-                                {
-                                    original.UnlockBits(bmpData);
-                                    return original;
-                                }
-
                             int index = GetIndex(x, y, bmpData.Width);
                             double sum = 0, r = 0, g = 0, b = 0;
                             for (int k = -_matrix[0].Length / 2; k < _matrix[0].Length / 2; ++k)
@@ -145,9 +115,6 @@ namespace FilterProcessing
                             }
                             NormalizeValues(ref r, ref g, ref b, ref sum, normalize);
                             WriteNewValues(newValues, index, r, g, b);
-
-                            if (worker != null)
-                                worker.ReportProgress(index / bytes * 50 + 50);
                         }
                 }
             }
@@ -174,9 +141,9 @@ namespace FilterProcessing
             if (normalizeBySum)
             {
                 if (sum == 0) sum = 1;
-                r /= sum; 
-                g /= sum; 
-                b /= sum; 
+                r /= sum;
+                g /= sum;
+                b /= sum;
             }
             if (r < 0) r = 0; if (r > 255) r = 255;
             if (g < 0) g = 0; if (g > 255) g = 255;

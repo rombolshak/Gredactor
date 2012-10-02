@@ -44,7 +44,7 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Введите ненормированные значения элементов матрицы, \r\nразделенные запятой, строки" +
                 " разделяются точкой с запятой.\r\nНапример: 0, 1, 0; 0, 0, 0; 0, 0, 0\r\nпроизводит " +
-                "сдвиг изображения вверх";
+                "сдвиг изображения";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // textBox1

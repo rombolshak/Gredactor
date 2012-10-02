@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Gredactor;
 using System.Drawing;
 using System.Windows.Forms;
-using System.ComponentModel;
+using Gredactor;
 
 namespace Rotation
 {
@@ -44,8 +40,11 @@ namespace Rotation
             form.Close();
         }
 
-        public Bitmap Apply(Bitmap original, BackgroundWorker worker)
+        public Bitmap Apply(Bitmap original)
         {
+            if (_angle < 0) _angle = 360 - _angle;
+            while (_angle >= 360) _angle -= 360;
+
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             IntPtr ptr = bmpData.Scan0;
@@ -60,12 +59,6 @@ namespace Rotation
             for (int y = 0; y < bmpData.Height; ++y)
                 for (int x = 0; x < bmpData.Width; ++x)
                 {
-                    if (worker != null)
-                        if (worker.CancellationPending)
-                        {
-                            original.UnlockBits(bmpData);
-                            return original;
-                        }
                     double h = Math.Abs(y - center.Y);
                     double r = Math.Sqrt(Math.Pow(x - center.X, 2) + Math.Pow(h, 2));
                     double alpha = Math.Atan2(y - center.Y, x - center.X);
@@ -74,16 +67,11 @@ namespace Rotation
                     double fromY = (center.Y + r * Math.Sin(alpha + _angle));
 
                     int index = (y * bmpData.Width + x) * 3;
-                    //int fromIndex = (fromY * bmpData.Width + fromX) * 3;
-                    //bool inBounds = InBounds(fromX, fromY, bmpData.Width, bmpData.Height);
-
                     if (index + 2 >= values.Length) break;
+
                     newValues[index + 2] = Interpolate(values, fromX, fromY, Colors.Red, bmpData.Width, bmpData.Height);
                     newValues[index + 1] = Interpolate(values, fromX, fromY, Colors.Green, bmpData.Width, bmpData.Height);
                     newValues[index + 0] = Interpolate(values, fromX, fromY, Colors.Blue, bmpData.Width, bmpData.Height);
-
-                    if (worker != null)
-                        worker.ReportProgress(index / bytes * 100);                    
                 }
 
             System.Runtime.InteropServices.Marshal.Copy(newValues, 0, ptr, bytes);
@@ -95,7 +83,6 @@ namespace Rotation
         {
             int x1 = (int)Math.Floor(x), x2 = (int)Math.Ceiling(x);
             int y1 = (int)Math.Floor(y), y2 = (int)Math.Ceiling(y);
-            //if (!InBounds(x, y, width, height)) return (byte)0;
 
             double q1 = (InBounds(x1, y1, width, height)) ? values[((y1) * width + (x1)) * 3 + (int)color] : 0;
             double q2 = (InBounds(x2, y1, width, height)) ? values[((y1) * width + (x2)) * 3 + (int)color] : 0;
@@ -117,7 +104,7 @@ namespace Rotation
                     q1 * (x2 - x) * (y2 - y) +
                     q2 * (x - x1) * (y2 - y) +
                     q3 * (x2 - x) * (y - y1) +
-                    q4 * (x - x1) * (y - y1) 
+                    q4 * (x - x1) * (y - y1)
                     ) / del;
             }
 
@@ -130,9 +117,9 @@ namespace Rotation
         bool InBounds(int x, int y, int width, int height)
         {
             return (
-                (x >= 0)     &&
+                (x >= 0) &&
                 (x < width) &&
-                (y >= 0)     &&
+                (y >= 0) &&
                 (y < height)
             );
         }

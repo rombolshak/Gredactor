@@ -38,7 +38,7 @@ namespace Gredactor
     {
 
         public static System.Collections.Generic.List<IEffect> plugins;
-        public static System.Collections.Generic.List<string> filesToSave;
+        public static System.Collections.Generic.List<string> filesToSave; // в гуе забавный баг, что нельзя сохранить картинку в то же место, откуд она была загружена. Костыль №1
 
         [DllImport("user32.dll")]
         public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
@@ -52,9 +52,9 @@ namespace Gredactor
             filesToSave = new System.Collections.Generic.List<string>();
             IntPtr hWnd = FindWindow(null, "Gredactor");
             if (hWnd != IntPtr.Zero)
-                ShowWindow(hWnd, 0); // 0 = SW_HIDE           
+                ShowWindow(hWnd, 0); // 0 = SW_HIDE // прячем консольку
             Application.Run(new MainForm());
-            ShowWindow(hWnd, 1);
+            ShowWindow(hWnd, 1); // и снова показываем
         }
 
         /// <summary>
@@ -81,6 +81,8 @@ namespace Gredactor
                     RunForm();                
                 else
                 {
+                    // консольный вариант запуска
+
                     if (args.Length < 4)
                         PrintUsage();
 
@@ -90,21 +92,22 @@ namespace Gredactor
                     if (!File.Exists(input))
                     {
                         Console.WriteLine("ERROR\t\tВходной файл {0} не найден", input);
-                        //Console.WriteLine("Нажмите любую клавишу для выхода");
-                        //Console.ReadKey(true);
                         Environment.Exit(0);
                     }
 
+                    // регистрируем все эффекты, какие есть
                     System.Collections.Generic.Dictionary<char, IEffect> shortKeys = new System.Collections.Generic.Dictionary<char, IEffect>(plugins.Count);
                     System.Collections.Generic.Dictionary<string, IEffect> longKeys = new System.Collections.Generic.Dictionary<string, IEffect>(plugins.Count);
                     foreach (IEffect e in plugins)
                     {
+                        // если два и более эффекта заявили в {Short,Long}ConsoleKey одинаковые параметры, то добавлен будет только первый
                         if (!shortKeys.ContainsKey(e.ShortConsoleKey))
                             shortKeys.Add(e.ShortConsoleKey, e);
                         if (!longKeys.ContainsKey(e.LongConsoleKey))
                             longKeys.Add(e.LongConsoleKey, e);
                     }
 
+                    // очередь эффектов
                     System.Collections.Queue effects = new System.Collections.Queue();
 
                     int i = 1;
@@ -118,9 +121,18 @@ namespace Gredactor
 
 
                     DateTime timeStart = DateTime.Now;
+                    Bitmap image = null;
                     Console.Write("{0,-" + (Console.WindowWidth - 6) + "}", "Загружаем изображение");
-                    Bitmap image = new Bitmap(input);
-                    Console.WriteLine("{0," + 6 + "}", "[DONE]");
+                    try
+                    {
+                        image = new Bitmap(input);
+                        Console.WriteLine("{0," + 6 + "}", "[DONE]");
+                    }
+                    catch
+                    {
+                        Console.WriteLine("{0," + 6 + "}", "[DONE]");
+                        Environment.Exit(0);
+                    }
 
                     while (effects.Count > 0)
                     {
@@ -137,12 +149,11 @@ namespace Gredactor
                         {
                             Console.WriteLine("{0," + 6 + "}", "[FAIL]");
                             Console.WriteLine(ex.Message);
-                            //Console.ReadKey(true);
                             Environment.Exit(1);
                         }
                     }
                     Console.Write("{0,-" + (Console.WindowWidth - 6) + "}", "Сохраняем изображение");
-                    image.Save(output);
+                    if (image != null) image.Save(output);
                     Console.WriteLine("{0," + 6 + "}", "[DONE]");
                     TimeSpan span = DateTime.Now - timeStart;
                     Console.WriteLine("Выполнено за {0} минут, {1} секунд", span.Minutes, span.Seconds);
@@ -150,15 +161,15 @@ namespace Gredactor
             }
             catch (Exception ex)
             {
-                Logger.Log(ex.Message + "\n=====================" + Environment.NewLine + "Stack:" + ex.StackTrace + Environment.NewLine + "====================");
+                Logger.Log(ex.Message + Environment.NewLine + "=====================" + Environment.NewLine + "Stack:" + ex.StackTrace + Environment.NewLine + "====================");
                 System.Windows.Forms.MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
+            // Костыль №1 (основная часть)
             if (filesToSave != null)
             {
                 System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo("FileMover.exe");
-                //psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                psi.CreateNoWindow = true;
+                psi.CreateNoWindow = true; // консолька все равно показывается :(
                 psi.Arguments = String.Join(" ", filesToSave.ToArray());
                 System.Diagnostics.Process.Start(psi);
             }
@@ -166,7 +177,7 @@ namespace Gredactor
 
         private static int ExtractEffect(string[] args, System.Collections.Generic.Dictionary<char, IEffect> shortKeys, System.Collections.Queue effects, int i)
         {
-            if (args[i].Length != 2) PrintUsage();            
+            if (args[i].Length != 2) PrintUsage(); // например, "-asd"
             try
             {
                 IEffect eff = shortKeys[args[i][1]];
@@ -180,21 +191,16 @@ namespace Gredactor
                         else
                             EffectFailed(eff.Name);
                     else
-                        if (eff.Prepare(null, true))
-                            effects.Enqueue(eff);
-                        else
-                            EffectFailed(eff.Name);
+                        PrepareEffect(effects, eff);
                 }
                 else
-                {
-                    if (eff.Prepare(null, true))
-                        effects.Enqueue(eff);
-                    else
-                        EffectFailed(eff.Name);
-                }
+                    PrepareEffect(effects, eff);                
                 ++i;
             }
-            catch { PrintUsage(); }
+            catch 
+            { 
+                PrintUsage(); // несуществующий эффект
+            }
             return i;
         }
 
@@ -212,28 +218,27 @@ namespace Gredactor
                         else
                             EffectFailed(eff.Name);
                     else
-                        if (eff.Prepare(null, true))
-                            effects.Enqueue(eff);
-                        else
-                            EffectFailed(eff.Name);
+                        PrepareEffect(effects, eff);
                 }
                 else
-                {
-                    if (eff.Prepare(null, true))
-                        effects.Enqueue(eff);
-                    else
-                        EffectFailed(eff.Name);
-                }
+                    PrepareEffect(effects, eff);
                 ++i;
             }
             catch { PrintUsage(); }
             return i;
         }
 
+        private static void PrepareEffect(System.Collections.Queue effects, IEffect eff)
+        {
+            if (eff.Prepare(null, true))
+                effects.Enqueue(eff);
+            else
+                EffectFailed(eff.Name);
+        }
+
         private static void EffectFailed(string name)
         {
             Console.WriteLine("ERROR:\t Сбой модуля {0}", name);
-            //Console.ReadKey(true);
             Environment.Exit(0);
         }
 
@@ -253,12 +258,12 @@ namespace Gredactor
                     e.ConsoleParams,
                     " ",
                     e.Description);
-            //Console.ReadKey(true);
             Environment.Exit(0);
         }        
 
         static void FindPlugins()
         {
+            // Магия, но такая очевидная
             plugins = new System.Collections.Generic.List<IEffect>();
             foreach (string f in Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "*.dll"))
             {

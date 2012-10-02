@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -23,10 +20,8 @@ namespace GrayscaleEffect
         {
             return true;
         }
-        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
+        public Bitmap Apply(Bitmap original)
         {
-            //Bitmap newBitmap = (Bitmap)original.Clone();
-
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             IntPtr ptr = bmpData.Scan0;
@@ -36,19 +31,9 @@ namespace GrayscaleEffect
 
             for (int i = 0; i < values.Length; i += 3)
             {
-                if (worker != null)
-                    if (worker.CancellationPending)
-                    {
-                        original.UnlockBits(bmpData);
-                        return original;
-                    }
-
                 if (i + 2 >= values.Length) break;
-                byte gray = (byte)(values[i + 2] * .3 + values[i + 1] * .59 + values[i+0] * .11);
+                byte gray = (byte)(values[i + 2] * .3 + values[i + 1] * .59 + values[i + 0] * .11);
                 values[i + 0] = values[i + 1] = values[i + 2] = gray;
-
-                if (worker != null)
-                    worker.ReportProgress(i / bytes * 100);
             }
 
             System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);

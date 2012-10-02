@@ -49,20 +49,20 @@
             this.numericUpDown1.DecimalPlaces = 2;
             this.numericUpDown1.Location = new System.Drawing.Point(13, 30);
             this.numericUpDown1.Maximum = new decimal(new int[] {
-            35999,
+            720,
             0,
             0,
-            131072});
+            0});
             this.numericUpDown1.Minimum = new decimal(new int[] {
-            1,
+            720,
             0,
             0,
-            131072});
+            -2147483648});
             this.numericUpDown1.Name = "numericUpDown1";
             this.numericUpDown1.Size = new System.Drawing.Size(249, 20);
             this.numericUpDown1.TabIndex = 1;
             this.numericUpDown1.Value = new decimal(new int[] {
-            1,
+            15,
             0,
             0,
             0});

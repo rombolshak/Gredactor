@@ -38,6 +38,9 @@ namespace Gredactor
             else SetNotChanged();
         }
 
+        /// <summary>
+        /// Распихивает кнопочки и менюшки по своим местам
+        /// </summary>
         private void LoadPlugins()
         {
             int x = 6, y = 19;
@@ -56,20 +59,18 @@ namespace Gredactor
                 }
                 if (effect.MenuItem != null)
                 {
-                    ToolStripMenuItem item = effect.MenuItem;
-                    
-                        item.Tag = Tuple.Create<IEffect, object>(effect, item.Tag);
-                        item.Click += new EventHandler(MenuItem_Click);
-                        if ((effect.MenuGroup != "") && (effect.MenuGroup != null))
-                            if (!menuStrip1.Items.ContainsKey(effect.MenuGroup))
-                            {
-                                ToolStripMenuItem newMenuGroup = new ToolStripMenuItem(effect.MenuGroup);
-                                newMenuGroup.Name = effect.MenuGroup;
-                                newMenuGroup.DropDownItems.Add(item);
-                                menuStrip1.Items.Add(newMenuGroup);
-                            }
-                            else ((ToolStripMenuItem)menuStrip1.Items.Find(effect.MenuGroup, false)[0]).DropDownItems.Add(item);
-                    
+                    ToolStripMenuItem item = effect.MenuItem;                    
+                    item.Tag = Tuple.Create<IEffect, object>(effect, item.Tag);
+                    item.Click += new EventHandler(MenuItem_Click);
+                    if ((effect.MenuGroup != "") && (effect.MenuGroup != null))
+                        if (!menuStrip1.Items.ContainsKey(effect.MenuGroup))
+                        {
+                            ToolStripMenuItem newMenuGroup = new ToolStripMenuItem(effect.MenuGroup);
+                            newMenuGroup.Name = effect.MenuGroup;
+                            newMenuGroup.DropDownItems.Add(item);
+                            menuStrip1.Items.Add(newMenuGroup);
+                        }
+                        else ((ToolStripMenuItem)menuStrip1.Items.Find(effect.MenuGroup, false)[0]).DropDownItems.Add(item);                    
                 }
             }
         }
@@ -92,12 +93,14 @@ namespace Gredactor
                 IEffect effect;
                 try
                 {
+                    // кнопка
                     Tuple<IEffect, object> tuple = (Tuple<IEffect, object>)(((Control)sender).Tag);
                     effect = tuple.Item1;
                     ((Control)sender).Tag = tuple.Item2;
                 }
                 catch (InvalidCastException)
                 {
+                    // не кнопка -- значит, меню
                     Tuple<IEffect, object> tuple = (Tuple<IEffect, object>)(((ToolStripItem)sender).Tag);
                     effect = tuple.Item1;
                     ((ToolStripItem)sender).Tag = tuple.Item2;
@@ -122,7 +125,7 @@ namespace Gredactor
             }
             catch (Exception ex) 
             {
-                Logger.Log(ex.Message + "\n=====================\nStack:" + ex.StackTrace + "\n====================");
+                Logger.Log(ex.Message + "\r\n=====================\r\nStack:" + ex.StackTrace + "\r\n====================");
                 MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); 
             }            
         }
@@ -219,13 +222,11 @@ namespace Gredactor
         #region Selection
 
         // The following three methods will draw a rectangle and allow 
-        // the user to use the mouse to resize the rectangle.  If the 
-        // rectangle intersects a control's client rectangle, the 
-        // control's color will change.
+        // the user to use the mouse to resize the rectangle. 
 
         bool isDrag = false;
-        Rectangle _guiRect;
-        Rectangle _selectionRect = new Rectangle
+        Rectangle _guiRect; // на экране
+        Rectangle _selectionRect = new Rectangle // на изображении
             (new Point(0, 0), new Size(0, 0));
         Point _guiStart;
         Point _selectionStart;
@@ -237,21 +238,17 @@ namespace Gredactor
             if (e.Button == MouseButtons.Left)
             {
                 isDrag = true;
-                Control control = (Control)sender;
+                Control control = (Control)sender; // pictureBox
 
                 _guiStart = control.PointToScreen(new Point(e.X, e.Y));
                 _selectionStart = e.Location;
                 //ControlPaint.DrawReversibleFrame(_guiRect, Color.Black, FrameStyle.Dashed);
                 _guiRect = new Rectangle(0, 0, 0, 0);
-            }
-
-            
+            }            
         }
 
-        private void Form1_MouseMove(object sender,
-            System.Windows.Forms.MouseEventArgs e)
+        private void Form1_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-
             // If the mouse is being dragged, 
             // undraw and redraw the rectangle as the mouse moves.
             if (isDrag)
@@ -274,8 +271,6 @@ namespace Gredactor
                 // again.  
                 ControlPaint.DrawReversibleFrame(_guiRect,
                     Color.Black, FrameStyle.Dashed);
-
-
             }
         }
 
@@ -305,7 +300,5 @@ namespace Gredactor
         {
             imHandler.Reset();
         }
-
-
     }
 }

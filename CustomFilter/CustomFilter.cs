@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Gredactor;
-using FilterProcessing;
 using System.Drawing;
-using System.Windows.Forms;
 using System.Globalization;
+using System.Windows.Forms;
+using FilterProcessing;
+using Gredactor;
 
 namespace CustomFilter
 {
@@ -41,7 +38,7 @@ namespace CustomFilter
             if (_strmatrix == "") return false;
             if (!CreateMatrix(_strmatrix, out _matrix))
             {
-                MessageBox.Show("Плохая (нехорошая, неправильная, некорректная) матрица. Работать не будет. Правда", "Ащибко", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                MessageBox.Show("Плохая (нехорошая, неправильная, некорректная) матрица. Работать не будет. Правда.", "Ащибко", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 return false;
             }
             return true;
@@ -78,7 +75,7 @@ namespace CustomFilter
 
             for (int i = 0; i < tryMatrix.Length; ++i)
                 for (int j = 0; j < tryMatrix.Length; ++j)
-                    matrix[tryMatrix.Length - 1 - j][tryMatrix.Length - 1 - i] = tryMatrix[i][j];
+                    matrix[/*tryMatrix.Length - 1 - j*/i][/*tryMatrix.Length - 1 - i*/j] = tryMatrix[i][j]; // так и не понял, надо ли переворачивать матрицу или нет
             return true;
         }
 
@@ -109,19 +106,19 @@ namespace CustomFilter
 
         public ToolStripMenuItem MenuItem
         {
-            get 
+            get
             {
                 if (!CheckDependences()) return null;
-                return new ToolStripMenuItem(this.Name); 
+                return new ToolStripMenuItem(this.Name);
             }
         }
 
         public Button Button
         {
-            get 
+            get
             {
                 if (!CheckDependences()) return null;
-                Button b = new Button(); b.Text = this.Name; return b; 
+                Button b = new Button(); b.Text = this.Name; return b;
             }
         }
 
@@ -145,7 +142,5 @@ namespace CustomFilter
             try { FilterProcessor fp = new FilterProcessor(); return true; }
             catch { return false; }
         }
-
-        
     }
 }

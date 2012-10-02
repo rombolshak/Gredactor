@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Gredactor;
-using System.Windows.Forms;
 using System.Drawing;
+using System.Windows.Forms;
+using Gredactor;
 
 namespace MedianFilter
 {
@@ -73,7 +70,7 @@ namespace MedianFilter
             _radius = (int)form.numericUpDown1.Value;
         }
 
-        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
+        public Bitmap Apply(Bitmap original)
         {
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
@@ -88,13 +85,6 @@ namespace MedianFilter
             for (int y = 0; y < bmpData.Height; ++y)
                 for (int x = 0; x < bmpData.Width; ++x)
                 {
-                    if (worker != null)
-                        if (worker.CancellationPending)
-                        {
-                            original.UnlockBits(bmpData);
-                            return original;
-                        }
-
                     byte[] rValues = new byte[arrSize], gValues = new byte[arrSize], bValues = new byte[arrSize];
                     int index = (x + y * bmpData.Width) * 3;
                     int pos = 0;
@@ -114,7 +104,7 @@ namespace MedianFilter
                             bValues[pos] = values[(valuesX + valuesY * bmpData.Width) * 3 + 0];
                             ++pos;
                         }
-                    
+
                     // the code below is too slooooooow
                     // but it's the best realization
                     // nothing to do here
@@ -126,35 +116,11 @@ namespace MedianFilter
 
                     Array.Sort(bValues);
                     newValues[index + 0] = bValues[rValues.Length / 2];
-
-                    if (worker != null)
-                        worker.ReportProgress(index / bytes * 100);
                 }
 
             System.Runtime.InteropServices.Marshal.Copy(newValues, 0, ptr, bytes);
             original.UnlockBits(bmpData);
             return original;
-        }
-
-        void QuickSort(byte[] arr, int first, int last)
-        {
-            byte p = arr[(last - first) / 2 + first];
-            byte temp;
-            int i = first, j = last;
-            while (i <= j)
-            {
-                while (arr[i] < p && i <= last) ++i;
-                while (arr[j] > p && j >= first) --j;
-                if (i <= j)
-                {
-                    temp = arr[i];
-                    arr[i] = arr[j];
-                    arr[j] = temp;
-                    ++i; --j;
-                }
-            }
-            if (j > first) QuickSort(arr, first, j);
-            if (i < last) QuickSort(arr, i, last);
         }
 
         public string MenuGroup

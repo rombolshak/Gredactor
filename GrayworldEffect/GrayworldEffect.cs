@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using System.Drawing;
+using System.Windows.Forms;
 using Gredactor;
 
 namespace GrayworldEffect
@@ -25,7 +22,7 @@ namespace GrayworldEffect
             return true;
         }
 
-        public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
+        public Bitmap Apply(Bitmap original)
         {
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
@@ -37,21 +34,11 @@ namespace GrayworldEffect
             float rAvg = 0, gAvg = 0, bAvg = 0; int N = 0;
             for (int i = 0; i < values.Length; i += 3)
             {
-                if (worker != null)
-                    if (worker.CancellationPending)
-                    {
-                        original.UnlockBits(bmpData);
-                        return original;
-                    }
-
                 if (i + 2 >= values.Length) break;
                 N += 1;
                 rAvg += values[i + 2];
                 gAvg += values[i + 1];
                 bAvg += values[i + 0];
-
-                if (worker != null)
-                    worker.ReportProgress(i / bytes * 50);
             }
             rAvg /= N;
             gAvg /= N;
@@ -64,13 +51,6 @@ namespace GrayworldEffect
 
             for (int i = 0; i < values.Length; i += 3)
             {
-                if (worker != null)
-                    if (worker.CancellationPending)
-                    {
-                        original.UnlockBits(bmpData);
-                        return original;
-                    }
-
                 if (i + 2 >= values.Length) break;
                 int newR = (int)((float)values[i + 2] * rCoef);
                 int newG = (int)((float)values[i + 1] * gCoef);
@@ -78,9 +58,6 @@ namespace GrayworldEffect
                 values[i + 2] = (newR > 255) ? (byte)255 : ((newR < 0) ? (byte)0 : (byte)newR);
                 values[i + 1] = (newG > 255) ? (byte)255 : ((newG < 0) ? (byte)0 : (byte)newG);
                 values[i + 0] = (newB > 255) ? (byte)255 : ((newB < 0) ? (byte)0 : (byte)newB);
-
-                if (worker != null)
-                    worker.ReportProgress(i / bytes * 50 + 50);
             }
 
             System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);

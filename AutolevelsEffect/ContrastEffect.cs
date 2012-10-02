@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Gredactor;
 using System.Drawing;
 using System.Windows.Forms;
+using Gredactor;
 
 namespace ContrastEffect
 {
@@ -48,8 +45,6 @@ namespace ContrastEffect
 
     public class AutoContrastEffect : IEffect
     {
-        //enum Operation { None, Autocontrast, Autolevels };
-        //Operation operation = Operation.None;
         public string Name
         {
             get { return "Автоконтраст"; }
@@ -63,45 +58,26 @@ namespace ContrastEffect
         public bool Prepare(object obj, bool console = false)
         {
             return true;
-            //try
-            //{
-            //    operation = (Operation)((Button)obj).Tag;
-            //    return true;
-            //}
-            //catch (InvalidCastException)
-            //{
-            //    operation = (Operation)((ToolStripMenuItem)obj).Tag;
-            //    return true;
-            //}
-            //catch
-            //{
-            //    return false;
-            //}
         }
 
         public Bitmap Apply(Bitmap original, System.ComponentModel.BackgroundWorker worker)
         {
-            //if (operation == Operation.None) return original;
             Rectangle rect = new Rectangle(0, 0, original.Width, original.Height);
             System.Drawing.Imaging.BitmapData bmpData = original.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             IntPtr ptr = bmpData.Scan0;
             int bytes = Math.Abs(bmpData.Stride) * bmpData.Height;
             byte[] values = new byte[bytes];
             System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
-            
-            
-            //else // Autocontrast
-            {
-                byte[] cValues = new byte[256];
-                double[] hsv = RGB2HSV(values); // переводим в HSV
-                for (int i = 2; i < hsv.Length - 1; i += 3)
-                    ++cValues[Convert.ToInt32(hsv[i+0] * 255)]; // гистограмма. В HSV яркость представлена от 0 до 1, поэтому здесь линейно растягиваем на [0; 255]
-                int cMin, cMax;
-                Helper.FindMaxMin(cValues, out cMin, out cMax); 
-                for (int i = 2; i < hsv.Length - 1; i += 3)
-                    hsv[i+0] = Helper.CalculateNewValue((byte)(hsv[i+0] * 255), cMin, cMax) / 255d;
-                values = HSV2RGB(hsv);
-            }            
+
+            byte[] cValues = new byte[256];
+            double[] hsv = RGB2HSV(values); // переводим в HSV
+            for (int i = 2; i < hsv.Length - 1; i += 3)
+                ++cValues[Convert.ToInt32(hsv[i] * 255)]; // гистограмма. В HSV яркость представлена от 0 до 1, поэтому здесь линейно растягиваем на [0; 255]
+            int cMin, cMax;
+            Helper.FindMaxMin(cValues, out cMin, out cMax);
+            for (int i = 2; i < hsv.Length - 1; i += 3)
+                hsv[i] = Helper.CalculateNewValue((byte)(hsv[i] * 255), cMin, cMax) / 255d;
+            values = HSV2RGB(hsv);
 
             System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);
             original.UnlockBits(bmpData);
@@ -119,7 +95,7 @@ namespace ContrastEffect
             for (int i = 0; i < hsv.Length - 1; i += 3)
             {
                 if (i + 2 >= hsv.Length) break;
-                Color c = ColorFromHSV(hsv[i+0], hsv[i + 1], hsv[i + 2]);
+                Color c = ColorFromHSV(hsv[i + 0], hsv[i + 1], hsv[i + 2]);
                 rgb[i + 2] = c.R;
                 rgb[i + 1] = c.G;
                 rgb[i + 0] = c.B;
@@ -139,7 +115,7 @@ namespace ContrastEffect
             {
                 if (i + 2 >= hsv.Length) break;
                 double hue, saturation, value;
-                ColorToHSV(Color.FromArgb(values[i + 2], values[i + 1], values[i+0]), out hue, out saturation, out value);
+                ColorToHSV(Color.FromArgb(values[i + 2], values[i + 1], values[i + 0]), out hue, out saturation, out value);
                 hsv[i + 0] = hue;
                 hsv[i + 1] = saturation;
                 hsv[i + 2] = value;
@@ -204,7 +180,8 @@ namespace ContrastEffect
 
         public Button Button
         {
-            get {
+            get
+            {
                 Button b1 = new Button();
                 b1.Text = "Автоконтраст";
                 return b1;
@@ -254,33 +231,31 @@ namespace ContrastEffect
             byte[] values = new byte[bytes];
             System.Runtime.InteropServices.Marshal.Copy(ptr, values, 0, bytes);
 
-            //if (operation == Operation.Autolevels)
+            // строим гистограммы яркости
+            byte[] rValues = new byte[256], gValues = new byte[256], bValues = new byte[256];
+            for (int i = 0; i < values.Length - 1; i += 3)
             {
-                // строим гистограмму яркости
-                byte[] rValues = new byte[256], gValues = new byte[256], bValues = new byte[256];
-                for (int i = 0; i < values.Length - 1; i += 3)
-                {
-                    if (i + 2 >= values.Length) break;
-                    ++rValues[values[i + 2]];
-                    ++gValues[values[i + 1]];
-                    ++bValues[values[i + 0]];
-                }
-
-                // находим максимум и минимум, откуда будем растягивать для каждого канала
-                int rMin, rMax, gMin, gMax, bMin, bMax;
-                Helper.FindMaxMin(rValues, out rMin, out rMax);
-                Helper.FindMaxMin(gValues, out gMin, out gMax);
-                Helper.FindMaxMin(bValues, out bMin, out bMax);
-
-                // делаем линейный сдвиг и радуемся
-                for (int i = 0; i < values.Length - 1; i += 3)
-                {
-                    if (i + 2 >= values.Length) break;
-                    values[i + 2] = Helper.CalculateNewValue(values[i + 2], rMin, rMax);
-                    values[i + 1] = Helper.CalculateNewValue(values[i + 1], gMin, gMax);
-                    values[i + 0] = Helper.CalculateNewValue(values[i + 0], bMin, bMax);
-                }
+                if (i + 2 >= values.Length) break;
+                ++rValues[values[i + 2]];
+                ++gValues[values[i + 1]];
+                ++bValues[values[i + 0]];
             }
+
+            // находим максимум и минимум, откуда будем растягивать для каждого канала
+            int rMin, rMax, gMin, gMax, bMin, bMax;
+            Helper.FindMaxMin(rValues, out rMin, out rMax);
+            Helper.FindMaxMin(gValues, out gMin, out gMax);
+            Helper.FindMaxMin(bValues, out bMin, out bMax);
+
+            // делаем линейный сдвиг и радуемся
+            for (int i = 0; i < values.Length - 1; i += 3)
+            {
+                if (i + 2 >= values.Length) break;
+                values[i + 2] = Helper.CalculateNewValue(values[i + 2], rMin, rMax);
+                values[i + 1] = Helper.CalculateNewValue(values[i + 1], gMin, gMax);
+                values[i + 0] = Helper.CalculateNewValue(values[i + 0], bMin, bMax);
+            }
+
             System.Runtime.InteropServices.Marshal.Copy(values, 0, ptr, bytes);
             original.UnlockBits(bmpData);
             return original;

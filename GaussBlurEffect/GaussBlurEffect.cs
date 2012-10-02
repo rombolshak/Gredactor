@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Gredactor;
-using FilterProcessing;
 using System.Windows.Forms;
+using FilterProcessing;
+using Gredactor;
 
 namespace GaussBlurEffect
 {
@@ -41,15 +38,15 @@ namespace GaussBlurEffect
                 form.ShowDialog();
             }
             else _sigma = Int32.Parse((string)obj);
-            if (_sigma > 200)
+            if (_sigma > 100)
             {
-                if (_sigma > 400)
+                if (_sigma > 200)
                 {
-                    if (_sigma > 800)
+                    if (_sigma > 300)
                     {
-                        DialogResult dr = System.Windows.Forms.MessageBox.Show("Значение слишком большое. Программа может работать неопределенно долго. Установить значение 300? При нажатии \"Нет\" сохранится значение " + _sigma, "Внимание", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+                        DialogResult dr = System.Windows.Forms.MessageBox.Show("Значение слишком большое. Программа может работать неопределенно долго. Установить значение 200? При нажатии \"Нет\" сохранится значение " + _sigma, "Внимание", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
                         if (dr == DialogResult.Yes)
-                            _sigma = 300;
+                            _sigma = 200;
                         else if (dr == DialogResult.Cancel)
                             _sigma = 0;
                     }
@@ -77,7 +74,7 @@ namespace GaussBlurEffect
         }
 
         private void CalculateMatrix()
-        {            
+        {
             int length = (int)Math.Ceiling(6 * _sigma);
             if (length % 2 == 0) length += 1;
             double[] res = new double[length];
@@ -92,11 +89,11 @@ namespace GaussBlurEffect
             _sigma = (double)form.numericUpDown1.Value;
         }
 
-        public System.Drawing.Bitmap Apply(System.Drawing.Bitmap original, System.ComponentModel.BackgroundWorker worker)
+        public System.Drawing.Bitmap Apply(System.Drawing.Bitmap original)
         {
             CalculateMatrix();
             FilterProcessor processor = new FilterProcessor(_matrix, true);
-            return processor.Process(original, worker);
+            return processor.Process(original);
         }
 
         public string MenuGroup
